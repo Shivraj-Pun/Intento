@@ -46,6 +46,25 @@ final class PersonalizationViewModel {
         haptics.play(.warning)
     }
 
+    func setName(_ name: String) {
+        preference.name = name
+        persist()
+    }
+
+    func setPhone(_ phone: String) {
+        preference.phone = phone
+        persist()
+    }
+
+    func toggleDietaryConstraint(_ constraint: DietaryConstraint) {
+        if preference.dietaryConstraints.contains(constraint) {
+            preference.dietaryConstraints.removeAll { $0 == constraint }
+        } else {
+            preference.dietaryConstraints.append(constraint)
+        }
+        persist()
+    }
+
     private func persist() {
         haptics.play(.selection)
         let snapshot = preference

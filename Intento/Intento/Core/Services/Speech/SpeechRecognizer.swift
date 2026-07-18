@@ -27,25 +27,26 @@ final class SpeechRecognizer: SpeechRecognizing {
     }
 
     func startTranscribing() -> AsyncThrowingStream<String, Error> {
-        AsyncThrowingStream { [weak self] continuation in
-            guard let self else {
-                continuation.finish()
-                return
-            }
-            do {
-                try start { text in
-                    continuation.yield(text)
-                } onError: { error in
-                    continuation.finish(throwing: error)
-                }
-            } catch {
+        let (stream, continuation) = AsyncThrowingStream<String, Error>.makeStream()
+        
+        do {
+            try start { text in
+                continuation.yield(text)
+            } onError: { error in
                 continuation.finish(throwing: error)
             }
+        } catch {
+            continuation.finish(throwing: error)
+        }
 
-            continuation.onTermination = { [weak self] _ in
-                Task { @MainActor in self?.stopTranscribing() }
+        continuation.onTermination = { @Sendable [weak self] _ in
+            guard let strongSelf = self else { return }
+            Task { @MainActor in
+                strongSelf.stopTranscribing()
             }
         }
+        
+        return stream
     }
 
     func stopTranscribing() {

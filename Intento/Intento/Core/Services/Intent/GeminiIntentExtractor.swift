@@ -72,7 +72,7 @@ struct GeminiIntentExtractor: LLMIntentExtracting {
           "goal": string,
           "peopleCount": number|null,
           "budgetRupees": number|null,
-          "dietary": string[] (subset of: vegetarian, vegan, eggetarian, jain, gluten_free, dairy_free, nut_free, halal, low_sugar),
+          "dietary": string[] (subset of: vegetarian, non_vegetarian, vegan, eggetarian),
           "occasion": string|null (one of: everyday, weekly_restock, breakfast, dinner_party, movie_night, birthday, festival, guests_over, baby_care, illness, picnic, cleaning),
           "durationDays": number|null,
           "existingItems": string[],

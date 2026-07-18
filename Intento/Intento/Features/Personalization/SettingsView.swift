@@ -2,16 +2,48 @@ import SwiftUI
 
 struct SettingsView: View {
     let config: AppConfig
+    let authService: AuthServicing
 
     @State private var vm: PersonalizationViewModel
+    @State private var currentUser: AppUser?
 
-    init(viewModel: PersonalizationViewModel, config: AppConfig) {
+    init(viewModel: PersonalizationViewModel, config: AppConfig, authService: AuthServicing) {
         _vm = State(initialValue: viewModel)
         self.config = config
+        self.authService = authService
     }
 
     var body: some View {
         Form {
+            if let user = currentUser {
+                Section("Profile") {
+                    TextField("Name", text: Binding(
+                        get: { user.name ?? "" },
+                        set: { user.name = $0 }
+                    ))
+                    .textContentType(.name)
+
+                    TextField("Phone", text: Binding(
+                        get: { user.phone },
+                        set: { user.phone = $0 }
+                    ))
+                    .textContentType(.telephoneNumber)
+                    .keyboardType(.phonePad)
+                    .disabled(true) // Phone is usually tied to auth
+                }
+            }
+
+            Section("Food Preferences") {
+                ForEach(DietaryConstraint.allCases) { constraint in
+                    Toggle(isOn: Binding(
+                        get: { vm.preference.dietaryConstraints.contains(constraint) },
+                        set: { _ in vm.toggleDietaryConstraint(constraint) }
+                    )) {
+                        Text(constraint.displayName)
+                    }
+                }
+            }
+            
             Section("Preferences") {
                 Toggle(isOn: Binding(get: { vm.preference.nutritionAwareEnabled }, set: { vm.setNutritionAware($0) })) {
                     Label("Healthier swaps by default", systemImage: "heart.text.square")
@@ -24,55 +56,36 @@ struct SettingsView: View {
                 }
             }
 
-            Section("Restock reminder") {
-                Picker("Cadence", selection: Binding(get: { vm.preference.restockCadenceDays ?? 0 }, set: { vm.setRestockCadence($0 == 0 ? nil : $0) })) {
-                    Text("Off").tag(0)
-                    Text("Weekly").tag(7)
-                    Text("Fortnightly").tag(14)
-                    Text("Monthly").tag(30)
-                }
-            }
-
-            if !vm.preference.preferredProducts.isEmpty {
-                Section("Learned favourites") {
-                    ForEach(vm.preference.preferredProducts.sorted { $0.frequency > $1.frequency }) { product in
-                        HStack {
-                            Text(product.name)
-                                .foregroundStyle(AppColor.Semantic.textPrimary)
-                            Spacer()
-                            Text("×\(product.frequency)")
-                                .foregroundStyle(AppColor.Semantic.textTertiary)
-                        }
+            Section {
+                Button(role: .destructive) {
+                    Task {
+                        try? await authService.logout()
                     }
-                    Button(role: .destructive) {
-                        vm.clearPreferredProducts()
-                    } label: {
-                        Label("Clear favourites", systemImage: "trash")
-                    }
+                } label: {
+                    Text("Logout")
                 }
-            }
-
-            Section("AI") {
-                labeledRow("Provider", config.llmProvider.capitalized)
-                labeledRow("Model", config.llmModel)
-                labeledRow("Mode", config.useMockServices || !config.hasLLMKey ? "On-device mock" : "Live")
-                Text("Set LLM_API_KEY in Environment.env and USE_MOCK_SERVICES=false to use \(config.llmProvider.capitalized).")
-                    .textStyle(.caption)
-                    .foregroundStyle(AppColor.Semantic.textTertiary)
+                
+                Button(role: .destructive) {
+                    Task {
+                        try? await authService.deleteAccount()
+                    }
+                } label: {
+                    Text("Delete Account")
+                }
             }
         }
         .navigationTitle("You")
         .navigationBarTitleDisplayMode(.inline)
         .task { await vm.load() }
-    }
-
-    private func labeledRow(_ label: String, _ value: String) -> some View {
-        HStack {
-            Text(label)
-                .foregroundStyle(AppColor.Semantic.textSecondary)
-            Spacer()
-            Text(value)
-                .foregroundStyle(AppColor.Semantic.textPrimary)
+        .onReceive(authService.authStatePublisher) { state in
+            if case .loggedIn(let user) = state {
+                self.currentUser = user
+            } else {
+                self.currentUser = nil
+            }
+        }
+        .task {
+            await authService.checkSession()
         }
     }
 }

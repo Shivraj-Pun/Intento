@@ -30,7 +30,11 @@ struct RootView: View {
                             path.removeAll()
                         }
                     case .settings:
-                        SettingsView(viewModel: container.makePersonalizationViewModel(), config: container.config)
+                        SettingsView(
+                            viewModel: container.makePersonalizationViewModel(),
+                            config: container.config,
+                            authService: container.auth
+                        )
                     }
                 }
             }

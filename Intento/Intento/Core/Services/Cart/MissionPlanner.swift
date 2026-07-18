@@ -112,15 +112,17 @@ struct MissionPlanner {
 
         for constraint in constraints {
             switch constraint {
-            case .vegetarian, .jain:
+            case .vegetarian:
                 if product.category == .meat { return false }
+            case .nonVegetarian:
+                // Non-vegetarians can eat anything, so no restriction here, 
+                // but if we had strict "only meat" we would check here.
+                continue
             case .eggetarian:
                 if product.category == .meat { return false }
             case .vegan:
                 if product.category == .meat || product.category == .dairy { return false }
                 if product.dietaryTags.contains(.eggetarian) { return false }
-            case .glutenFree, .dairyFree, .nutFree, .lowSugar, .halal:
-                continue
             }
         }
         return true

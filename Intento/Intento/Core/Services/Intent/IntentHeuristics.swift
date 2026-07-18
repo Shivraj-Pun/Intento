@@ -22,17 +22,11 @@ enum IntentHeuristics {
         (["picnic", "outing", "trip"], .picnic),
         (["cleaning", "clean the house", "deep clean"], .cleaning)
     ]
-
     static let dietaryKeywords: [(keywords: [String], constraint: DietaryConstraint)] = [
         (["vegan"], .vegan),
         (["vegetarian", "veg only", "no meat", "veggie"], .vegetarian),
-        (["eggetarian", "egg only"], .eggetarian),
-        (["jain"], .jain),
-        (["gluten free", "gluten-free", "no gluten"], .glutenFree),
-        (["dairy free", "dairy-free", "lactose"], .dairyFree),
-        (["nut free", "nut-free", "no nuts"], .nutFree),
-        (["halal"], .halal),
-        (["low sugar", "sugar free", "sugar-free", "diabetic"], .lowSugar)
+        (["non vegetarian", "non-vegetarian", "non veg", "meat", "chicken", "beef", "pork"], .nonVegetarian),
+        (["eggetarian", "egg only"], .eggetarian)
     ]
 
     static func detectPeopleCount(in text: String) -> Int? {
