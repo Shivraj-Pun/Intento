@@ -1,11 +1,5 @@
-//
-//  SustainabilitySuggestion.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// The kind of eco-friendly nudge being offered.
 enum SustainabilityKind: String, Codable, Hashable, Sendable {
     case refillPack = "refill_pack"
     case reusableAlternative = "reusable_alternative"
@@ -20,24 +14,19 @@ enum SustainabilityKind: String, Codable, Hashable, Sendable {
     }
 }
 
-/// A non-blocking suggestion to swap a cart item for a more sustainable
-/// alternative. Presented as a dismissible chip (Phase 2). Pure data model.
 struct SustainabilitySuggestion: Identifiable, Codable, Hashable, Sendable {
     let id: UUID
     let kind: SustainabilityKind
 
-    /// The cart item this suggestion applies to.
     let originalSKU: String
     let originalName: String
 
-    /// The suggested alternative.
     let suggestedSKU: String
     let suggestedName: String
 
-    /// Optional short message, e.g. "Save ₹40 and one plastic pouch".
     let message: String?
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         kind: SustainabilityKind,
         originalSKU: String,

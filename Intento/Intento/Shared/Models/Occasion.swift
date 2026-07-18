@@ -1,12 +1,5 @@
-//
-//  Occasion.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// The occasion or mission type inferred from an intent. Drives scaling,
-/// seasonal biasing, and quick-mission suggestions.
 enum Occasion: String, Codable, CaseIterable, Hashable, Sendable, Identifiable {
     case everyday
     case weeklyRestock = "weekly_restock"

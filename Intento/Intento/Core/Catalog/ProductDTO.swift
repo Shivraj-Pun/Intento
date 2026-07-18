@@ -1,13 +1,5 @@
-//
-//  ProductDTO.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// Wire/JSON representation of a catalog entry. Kept separate from the domain
-/// `Product`/`InventoryStatus` models so the on-disk format can evolve
-/// independently. Prices are expressed in whole rupees for readability.
 struct ProductDTO: Codable, Sendable {
     let sku: String
     let name: String
@@ -30,15 +22,12 @@ struct ProductDTO: Codable, Sendable {
     let imageName: String?
 }
 
-/// Top-level JSON envelope for the bundled catalog.
 struct CatalogFileDTO: Codable, Sendable {
     let products: [ProductDTO]
 }
 
 extension ProductDTO {
-    /// Maps this DTO to a domain `Product`. Unknown enum raw values are skipped
-    /// gracefully (unknown category → `nil`, returned to the caller).
-    func toProduct() -> Product? {
+    nonisolated func toProduct() -> Product? {
         guard let category = ProductCategory(rawValue: category),
               let unit = MeasurementUnit(rawValue: packUnit) else {
             return nil
@@ -66,8 +55,7 @@ extension ProductDTO {
         )
     }
 
-    /// Maps this DTO to its inventory record.
-    func toInventoryStatus() -> InventoryStatus {
+    nonisolated func toInventoryStatus() -> InventoryStatus {
         InventoryStatus(sku: sku, quantityAvailable: stock, etaMinutes: etaMinutes)
     }
 }

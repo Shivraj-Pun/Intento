@@ -1,11 +1,5 @@
-//
-//  SubstitutionRecord.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// Why an item was substituted for another.
 enum SubstitutionReason: String, Codable, Hashable, Sendable {
     case outOfStock = "out_of_stock"
     case lowStock = "low_stock"
@@ -24,8 +18,6 @@ enum SubstitutionReason: String, Codable, Hashable, Sendable {
     }
 }
 
-/// Records that one product was swapped for another during cart generation,
-/// so the UI can show a "substituted" label and let the user reject it.
 struct SubstitutionRecord: Identifiable, Codable, Hashable, Sendable {
     let id: UUID
     let originalSKU: String
@@ -34,12 +26,10 @@ struct SubstitutionRecord: Identifiable, Codable, Hashable, Sendable {
     let substituteName: String
     let reason: SubstitutionReason
 
-    /// Whether the user has accepted this substitution. Defaults to `true`
-    /// (auto-accepted); the user can reject and pick manually.
     var isAccepted: Bool
     let createdAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         originalSKU: String,
         originalName: String,

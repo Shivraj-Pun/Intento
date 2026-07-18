@@ -1,12 +1,5 @@
-//
-//  BudgetStatus.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// Traffic-light budget state for a cart. Colour mapping is done in the view
-/// layer (Phase 2) so this stays free of any UI dependency.
 enum BudgetStatus: String, Codable, Hashable, Sendable {
     case noBudget = "no_budget"
     case under
@@ -22,8 +15,6 @@ enum BudgetStatus: String, Codable, Hashable, Sendable {
         }
     }
 
-    /// Semantic colour name (green / amber / red) resolved to an actual colour
-    /// in the UI layer.
     nonisolated var semanticColorName: String {
         switch self {
         case .noBudget: "neutral"

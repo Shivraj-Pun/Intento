@@ -1,12 +1,5 @@
-//
-//  DietaryConstraint.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// Dietary constraints that can be extracted from an intent and used to filter
-/// or bias product selection.
 enum DietaryConstraint: String, Codable, CaseIterable, Hashable, Sendable, Identifiable {
     case vegetarian
     case vegan

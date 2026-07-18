@@ -1,15 +1,3 @@
-//
-//  AppButtonStyle.swift
-//  Intento (Ask Blinkit)
-//
-//  Reusable button styles mirroring the CSS `.btn` variants (primary, secondary,
-//  ghost, danger) and sizes. Press state maps to the CSS `:active` state;
-//  disabled maps to the `:disabled` state.
-//
-//  Usage:  Button("Checkout") { }.buttonStyle(.appPrimary)
-//          Button("Cancel") { }.buttonStyle(.appGhost(size: .small))
-//
-
 import SwiftUI
 
 enum AppButtonVariant: Sendable {
@@ -31,19 +19,19 @@ enum AppButtonSize: Sendable {
     }
     var horizontalPadding: CGFloat {
         switch self {
-        case .regular: AppSpacing.xxl   // 24
+        case .regular: AppSpacing.xxl
         case .small: 14
         }
     }
     var verticalPadding: CGFloat {
         switch self {
-        case .regular: AppSpacing.md    // 12
-        case .small: AppSpacing.sm      // 8
+        case .regular: AppSpacing.md
+        case .small: AppSpacing.sm
         }
     }
     var cornerRadius: CGFloat {
         switch self {
-        case .regular: AppRadius.md     // 8
+        case .regular: AppRadius.md
         case .small: 6
         }
     }
@@ -52,7 +40,6 @@ enum AppButtonSize: Sendable {
 struct AppButtonStyle: ButtonStyle {
     let variant: AppButtonVariant
     var size: AppButtonSize = .regular
-    /// Expands the button to the full available width.
     var fullWidth: Bool = false
 
     func makeBody(configuration: Configuration) -> some View {
@@ -132,8 +119,6 @@ struct AppButtonStyle: ButtonStyle {
         }
     }
 }
-
-// MARK: - Convenience accessors
 
 extension ButtonStyle where Self == AppButtonStyle {
     nonisolated static var appPrimary: AppButtonStyle { AppButtonStyle(variant: .primary) }

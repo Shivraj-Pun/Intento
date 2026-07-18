@@ -1,22 +1,14 @@
-//
-//  PackSize.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// Describes the quantity contained in a single pack of a product,
-/// e.g. 500 g, 1 L, 6 pcs.
 struct PackSize: Codable, Hashable, Sendable {
     let value: Double
     let unit: MeasurementUnit
 
-    init(value: Double, unit: MeasurementUnit) {
+    nonisolated init(value: Double, unit: MeasurementUnit) {
         self.value = value
         self.unit = unit
     }
 
-    /// Human-readable label such as "500 g", "1 L", "6 pcs".
     nonisolated var displayLabel: String {
         let numberString: String
         if value.truncatingRemainder(dividingBy: 1) == 0 {

@@ -1,12 +1,5 @@
-//
-//  ProductCategory.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// Top-level product categories used to group the catalog, drive scaling rules,
-/// and organise the cart screen.
 enum ProductCategory: String, Codable, CaseIterable, Hashable, Sendable, Identifiable {
     case produce
     case dairy
@@ -44,7 +37,6 @@ enum ProductCategory: String, Codable, CaseIterable, Hashable, Sendable, Identif
         }
     }
 
-    /// SF Symbol name used across the UI (Phase 2).
     nonisolated var iconName: String {
         switch self {
         case .produce: "carrot.fill"
@@ -64,7 +56,6 @@ enum ProductCategory: String, Codable, CaseIterable, Hashable, Sendable, Identif
         }
     }
 
-    /// Display order used when grouping the cart by category.
     nonisolated var sortOrder: Int {
         ProductCategory.allCases.firstIndex(of: self) ?? 0
     }

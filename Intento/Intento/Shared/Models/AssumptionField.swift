@@ -1,11 +1,5 @@
-//
-//  AssumptionField.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// Which intent field an assumption chip represents.
 enum AssumptionKey: String, Codable, CaseIterable, Hashable, Sendable {
     case goal
     case peopleCount = "people_count"
@@ -30,7 +24,6 @@ enum AssumptionKey: String, Codable, CaseIterable, Hashable, Sendable {
     }
 }
 
-/// The kind of editor an assumption chip should present.
 enum AssumptionEditableType: String, Codable, Hashable, Sendable {
     case number
     case currency
@@ -39,25 +32,19 @@ enum AssumptionEditableType: String, Codable, Hashable, Sendable {
     case multiSelect = "multi_select"
 }
 
-/// An editable "assumption chip". Represents a field of the intent that was
-/// either explicitly stated by the user or inferred by the extractor. Inferred
-/// fields (`wasInferred == true`) are surfaced for quick correction, and any
-/// edit triggers cart regeneration (Phase 2).
 struct AssumptionField: Identifiable, Codable, Hashable, Sendable {
     let id: UUID
     let key: AssumptionKey
     var displayLabel: String
     var valueText: String
 
-    /// True when the value was inferred rather than explicitly stated.
     var wasInferred: Bool
     var confidence: Double
     var editableType: AssumptionEditableType
 
-    /// Options offered for select-type fields (e.g. occasions, dietary tags).
     var options: [String]
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         key: AssumptionKey,
         displayLabel: String? = nil,

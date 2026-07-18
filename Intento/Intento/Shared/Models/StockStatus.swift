@@ -1,11 +1,5 @@
-//
-//  StockStatus.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// Availability state for a product, derived from live (mock) inventory levels.
 enum StockStatus: String, Codable, Hashable, Sendable {
     case inStock = "in_stock"
     case lowStock = "low_stock"
@@ -23,7 +17,6 @@ enum StockStatus: String, Codable, Hashable, Sendable {
         self != .outOfStock
     }
 
-    /// Derives a status from an available quantity using simple thresholds.
     nonisolated static func from(quantity: Int, lowStockThreshold: Int = 3) -> StockStatus {
         if quantity <= 0 { return .outOfStock }
         if quantity <= lowStockThreshold { return .lowStock }

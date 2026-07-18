@@ -1,22 +1,14 @@
-//
-//  UserPreference.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// A product the user habitually buys within a category, powering suggestions
-/// like "You usually buy the 2 L milk pack".
 struct PreferredProduct: Identifiable, Codable, Hashable, Sendable {
     let id: UUID
     var category: ProductCategory
     var sku: String
     var name: String
 
-    /// How many past missions included this product (used for ranking).
     var frequency: Int
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         category: ProductCategory,
         sku: String,
@@ -31,12 +23,9 @@ struct PreferredProduct: Identifiable, Codable, Hashable, Sendable {
     }
 }
 
-/// Locally-persisted user preferences learned from past missions plus explicit
-/// toggles. Pure `Codable` domain model (persistence mapping done in Phase 2).
 struct UserPreference: Identifiable, Codable, Hashable, Sendable {
     let id: UUID
 
-    /// Products the user tends to prefer, keyed by category via `category`.
     var preferredProducts: [PreferredProduct]
 
     var dietaryConstraints: [DietaryConstraint]
@@ -44,23 +33,17 @@ struct UserPreference: Identifiable, Codable, Hashable, Sendable {
     var defaultBudget: Money?
     var favoriteBrands: [String]
 
-    // MARK: Feature toggles
-
-    /// Nutrition-aware healthier-swap suggestions. Off by default per spec.
     var nutritionAwareEnabled: Bool
 
-    /// Non-blocking sustainability nudges (refill/reusable).
     var sustainabilityNudgesEnabled: Bool
 
-    /// Cadence in days for restock reminders (e.g. 7 for "Sunday Restock").
     var restockCadenceDays: Int?
 
-    /// When the last restock mission ran, used to time restock nudges.
     var lastRestockAt: Date?
 
     var updatedAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         preferredProducts: [PreferredProduct] = [],
         dietaryConstraints: [DietaryConstraint] = [],
@@ -86,14 +69,12 @@ struct UserPreference: Identifiable, Codable, Hashable, Sendable {
         self.updatedAt = updatedAt
     }
 
-    /// The user's preferred product for a category, if one is remembered.
     nonisolated func preferredProduct(in category: ProductCategory) -> PreferredProduct? {
         preferredProducts
             .filter { $0.category == category }
             .max(by: { $0.frequency < $1.frequency })
     }
 
-    /// A neutral default used on first launch before any learning has occurred.
     nonisolated static var empty: UserPreference {
         UserPreference()
     }

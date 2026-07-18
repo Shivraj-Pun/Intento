@@ -1,16 +1,5 @@
-//
-//  DotEnvEnvironment.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// Reads configuration from a `.env`-style file.
-///
-/// iOS apps cannot read arbitrary filesystem paths at runtime, so the `.env`
-/// file is bundled as an app resource. This type parses simple `KEY=VALUE`
-/// lines (supporting `#` comments, blank lines, and optional surrounding
-/// quotes) and exposes them via `EnvironmentConfigProviding`.
 struct DotEnvEnvironment: EnvironmentConfigProviding {
     private let values: [String: String]
 
@@ -18,15 +7,10 @@ struct DotEnvEnvironment: EnvironmentConfigProviding {
         self.values = values
     }
 
-    /// Parse from raw `.env` file contents.
     init(contents: String) {
         self.values = Self.parse(contents)
     }
 
-    /// Load and parse a bundled `.env` resource.
-    ///
-    /// Xcode's file-system synchronized groups can skip dot-prefixed files, so
-    /// we try several candidate resource names for robustness.
     init?(bundle: Bundle = .main) {
         let candidates: [(name: String, ext: String?)] = [
             (".env", nil),
@@ -50,7 +34,6 @@ struct DotEnvEnvironment: EnvironmentConfigProviding {
         return value
     }
 
-    /// Parses `.env` contents into a dictionary.
     nonisolated static func parse(_ contents: String) -> [String: String] {
         var result: [String: String] = [:]
 
@@ -64,13 +47,11 @@ struct DotEnvEnvironment: EnvironmentConfigProviding {
 
             var value = line[line.index(after: separator)...].trimmingCharacters(in: .whitespaces)
 
-            // Strip an inline comment that is not inside quotes.
             if !(value.hasPrefix("\"") || value.hasPrefix("'")),
                let hashIndex = value.firstIndex(of: "#") {
                 value = String(value[..<hashIndex]).trimmingCharacters(in: .whitespaces)
             }
 
-            // Strip matching surrounding quotes.
             if value.count >= 2 {
                 let first = value.first!
                 let last = value.last!

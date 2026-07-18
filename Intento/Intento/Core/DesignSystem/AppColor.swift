@@ -1,18 +1,7 @@
-//
-//  AppColor.swift
-//  Intento (Ask Blinkit)
-//
-//  Design-system colour tokens. Mirrors the CSS `--color-*` custom properties
-//  so the whole app shares one palette. Pure tokens — no business logic.
-//
-
 import SwiftUI
 
-/// Namespaced colour palette. Use the semantic tokens (`AppColor.Semantic`)
-/// in feature code where possible; the raw scales exist for fine-grained needs.
 enum AppColor {
 
-    // MARK: - Primary (brand yellow)
     enum Primary {
         nonisolated static let s50 = Color(hex: 0xF8F8F6)
         nonisolated static let s100 = Color(hex: 0xF0EEE7)
@@ -26,7 +15,6 @@ enum AppColor {
         nonisolated static let s900 = Color(hex: 0x624D0B)
     }
 
-    // MARK: - Secondary (warm neutral)
     enum Secondary {
         nonisolated static let s50 = Color(hex: 0xF8F8F7)
         nonisolated static let s100 = Color(hex: 0xF4F4F2)
@@ -40,7 +28,6 @@ enum AppColor {
         nonisolated static let s900 = Color(hex: 0x46443C)
     }
 
-    // MARK: - Tertiary
     enum Tertiary {
         nonisolated static let s50 = Color(hex: 0xF8F8F7)
         nonisolated static let s100 = Color(hex: 0xEEEDEC)
@@ -54,7 +41,6 @@ enum AppColor {
         nonisolated static let s900 = Color(hex: 0x3B3935)
     }
 
-    // MARK: - Accent
     enum Accent {
         nonisolated static let s50 = Color(hex: 0xF8F7F7)
         nonisolated static let s100 = Color(hex: 0xE8E7E5)
@@ -68,7 +54,6 @@ enum AppColor {
         nonisolated static let s900 = Color(hex: 0x31302D)
     }
 
-    // MARK: - Gray
     enum Gray {
         nonisolated static let s50 = Color(hex: 0xFAFAFA)
         nonisolated static let s100 = Color(hex: 0xF5F5F4)
@@ -82,7 +67,6 @@ enum AppColor {
         nonisolated static let s900 = Color(hex: 0x1E1C1A)
     }
 
-    // MARK: - Success
     enum Success {
         nonisolated static let s50 = Color(hex: 0xF6F8F7)
         nonisolated static let s100 = Color(hex: 0xD9E7DE)
@@ -96,7 +80,6 @@ enum AppColor {
         nonisolated static let s900 = Color(hex: 0x0D411D)
     }
 
-    // MARK: - Error
     enum Error {
         nonisolated static let s50 = Color(hex: 0xF8F7F6)
         nonisolated static let s100 = Color(hex: 0xEBE1E0)
@@ -110,7 +93,6 @@ enum AppColor {
         nonisolated static let s900 = Color(hex: 0x4C1411)
     }
 
-    // MARK: - Warning
     enum Warning {
         nonisolated static let s50 = Color(hex: 0xF8F7F6)
         nonisolated static let s100 = Color(hex: 0xEAE4DC)
@@ -124,7 +106,6 @@ enum AppColor {
         nonisolated static let s900 = Color(hex: 0x4E3007)
     }
 
-    // MARK: - Info
     enum Info {
         nonisolated static let s50 = Color(hex: 0xF6F7F8)
         nonisolated static let s100 = Color(hex: 0xE1E5EC)
@@ -138,32 +119,22 @@ enum AppColor {
         nonisolated static let s900 = Color(hex: 0x0D2652)
     }
 
-    // MARK: - Semantic tokens (use these in feature code)
     enum Semantic {
-        /// App background.
         nonisolated static let background = AppColor.Gray.s50
-        /// Card / sheet surfaces.
         nonisolated static let surface = Color.white
-        /// Slightly recessed surface (grouped rows, fields).
         nonisolated static let surfaceMuted = AppColor.Secondary.s100
-        /// Hairline separators and borders.
         nonisolated static let border = AppColor.Gray.s200
         nonisolated static let borderStrong = AppColor.Gray.s300
 
-        /// Brand accent.
         nonisolated static let brand = AppColor.Primary.s500
         nonisolated static let brandStrong = AppColor.Primary.s600
-        /// Foreground placed on top of a brand-coloured surface (dark for
-        /// contrast against the light yellow).
         nonisolated static let onBrand = AppColor.Gray.s900
 
-        /// Text.
         nonisolated static let textPrimary = AppColor.Gray.s900
         nonisolated static let textSecondary = AppColor.Gray.s600
         nonisolated static let textTertiary = AppColor.Gray.s500
         nonisolated static let textOnColor = Color.white
 
-        /// Status.
         nonisolated static let success = AppColor.Success.s500
         nonisolated static let warning = AppColor.Warning.s500
         nonisolated static let error = AppColor.Error.s500

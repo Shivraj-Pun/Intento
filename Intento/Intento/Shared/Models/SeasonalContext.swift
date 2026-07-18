@@ -1,11 +1,5 @@
-//
-//  SeasonalContext.swift
-//  Intento (Ask Blinkit)
-//
-
 import Foundation
 
-/// Coarse seasons used by the seasonal intelligence rules engine (Phase 2).
 enum Season: String, Codable, CaseIterable, Hashable, Sendable {
     case winter
     case summer
@@ -16,7 +10,6 @@ enum Season: String, Codable, CaseIterable, Hashable, Sendable {
     nonisolated var displayName: String { rawValue.capitalized }
 }
 
-/// Festivals/events that can bias suggestions.
 enum Festival: String, Codable, CaseIterable, Hashable, Sendable {
     case none
     case diwali
@@ -41,19 +34,15 @@ enum Festival: String, Codable, CaseIterable, Hashable, Sendable {
     }
 }
 
-/// A snapshot of local seasonal/occasion context, produced by
-/// `SeasonalIntelligenceProviding` from simple local rules (no live weather
-/// dependency required). Pure data model.
 struct SeasonalContext: Codable, Hashable, Sendable {
     let date: Date
     let season: Season
     let festival: Festival
     let month: Int
 
-    /// Free-form tags matched against `Product.seasonalTags` for biasing.
     let activeTags: [String]
 
-    init(
+    nonisolated init(
         date: Date,
         season: Season,
         festival: Festival = .none,
