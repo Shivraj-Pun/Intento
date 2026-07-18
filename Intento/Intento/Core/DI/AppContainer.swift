@@ -18,6 +18,7 @@ final class AppContainer {
     let speech: SpeechRecognizing
     let personalization: PersonalizationStoring
     let auth: AuthServicing
+    let cartService: CartPersisting
 
     init(config: AppConfig, personalization: PersonalizationStoring, auth: AuthServicing) {
         self.config = config
@@ -28,6 +29,7 @@ final class AppContainer {
         let inventory = SupabaseInventoryService(client: SupabaseManager.client, catalog: catalog)
         self.catalog = catalog
         self.inventory = inventory
+        self.cartService = SupabaseCartService(client: SupabaseManager.client, catalog: catalog)
 
         let scaler = QuantityScalingEngine()
         let substitution = SubstitutionResolver(inventory: inventory)

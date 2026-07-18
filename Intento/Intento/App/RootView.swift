@@ -5,9 +5,14 @@ struct RootView: View {
 
     @State private var path: [AppRoute] = []
     @State private var pending = PendingMissionCenter.shared
-    @State private var globalCart = GlobalCartViewModel()
+    @State private var globalCart: GlobalCartViewModel
     
     @State private var selectedTab: Int = 0
+
+    init(container: AppContainer) {
+        self.container = container
+        _globalCart = State(initialValue: container.makeGlobalCartViewModel())
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -69,6 +74,9 @@ struct RootView: View {
             handlePending(newValue)
         }
         .onAppear { handlePending(pending.pendingPrompt) }
+        .task {
+            await globalCart.loadIfNeeded()
+        }
     }
 
     private func handlePending(_ prompt: String?) {

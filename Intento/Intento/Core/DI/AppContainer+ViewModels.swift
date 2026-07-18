@@ -24,10 +24,16 @@ extension AppContainer {
             nutrition: nutrition,
             sustainability: sustainability,
             personalization: personalization,
+            cartService: cartService,
+            auth: auth,
             haptics: haptics,
             currencyCode: config.currencyCode,
             localeIdentifier: config.localeIdentifier
         )
+    }
+
+    func makeGlobalCartViewModel() -> GlobalCartViewModel {
+        GlobalCartViewModel(cartService: cartService, auth: auth)
     }
 
     func makePersonalizationViewModel() -> PersonalizationViewModel {

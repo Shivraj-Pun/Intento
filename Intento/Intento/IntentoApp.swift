@@ -10,22 +10,29 @@ struct IntentoApp: App {
         let config = AppConfig.bootstrap()
         let schema = Schema([SavedMissionEntity.self, UserPreferenceEntity.self, AppUser.self])
 
+        let authService: AuthServicing = SupabaseAuthService()
+
         let resolvedContainer: ModelContainer
-        let store: PersonalizationStoring
+        let localStore: PersonalizationStoring
         do {
             let modelContainer = try ModelContainer(for: schema)
             resolvedContainer = modelContainer
-            store = SwiftDataPersonalizationStore(context: modelContainer.mainContext)
+            localStore = SwiftDataPersonalizationStore(context: modelContainer.mainContext)
         } catch {
             let fallback = try! ModelContainer(
                 for: schema,
                 configurations: ModelConfiguration(isStoredInMemoryOnly: true)
             )
             resolvedContainer = fallback
-            store = InMemoryPersonalizationStore()
+            localStore = InMemoryPersonalizationStore()
         }
 
-        let authService: AuthServicing = SupabaseAuthService()
+        // Missions persist to Supabase; preferences delegate to the local store.
+        let store: PersonalizationStoring = SupabasePersonalizationStore(
+            client: SupabaseManager.client,
+            auth: authService,
+            local: localStore
+        )
 
         self.modelContainer = resolvedContainer
         _container = State(initialValue: AppContainer(config: config, personalization: store, auth: authService))

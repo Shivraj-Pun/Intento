@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import Combine
 
 @MainActor
 @Observable
@@ -18,6 +19,8 @@ final class CartViewModel {
     private let nutrition: NutritionAdvising
     private let sustainability: SustainabilityAdvising
     private let personalization: PersonalizationStoring
+    private let cartService: CartPersisting
+    private let auth: AuthServicing
     let haptics: HapticsServicing
     let currencyCode: String
     let localeIdentifier: String
@@ -52,6 +55,8 @@ final class CartViewModel {
         nutrition: NutritionAdvising,
         sustainability: SustainabilityAdvising,
         personalization: PersonalizationStoring,
+        cartService: CartPersisting,
+        auth: AuthServicing,
         haptics: HapticsServicing,
         currencyCode: String,
         localeIdentifier: String
@@ -64,6 +69,8 @@ final class CartViewModel {
         self.nutrition = nutrition
         self.sustainability = sustainability
         self.personalization = personalization
+        self.cartService = cartService
+        self.auth = auth
         self.haptics = haptics
         self.currencyCode = currencyCode
         self.localeIdentifier = localeIdentifier
@@ -257,7 +264,38 @@ final class CartViewModel {
             lastUsedAt: checkedOut ? Date() : nil,
             timesUsed: checkedOut ? 1 : 0
         )
-        try? await personalization.saveMission(mission)
+        // Persist the mission first. Only link the cart to it if the mission was
+        // successfully saved to Supabase — otherwise the carts.mission_id foreign key
+        // would be violated.
+        var missionPersisted = false
+        do {
+            try await personalization.saveMission(mission)
+            missionPersisted = true
+        } catch {
+            print("[Intento] ⚠️ Failed to persist mission to Supabase: \(error)")
+        }
+
+        await persistCartToSupabase(missionID: missionPersisted ? mission.id : nil)
+    }
+
+    private func persistCartToSupabase(missionID: UUID?) async {
+        guard let userID = currentUserID else { return }
+        do {
+            try await cartService.saveCart(cart, userID: userID, missionID: missionID)
+        } catch {
+            print("[Intento] ⚠️ Failed to persist cart to Supabase: \(error)")
+        }
+    }
+
+    private var currentUserID: UUID? {
+        var resolved: UUID?
+        let cancellable = auth.authStatePublisher.first().sink { state in
+            if case .loggedIn(let user) = state {
+                resolved = user.id
+            }
+        }
+        _ = cancellable
+        return resolved
     }
 
     private func learnPreferences() async {
