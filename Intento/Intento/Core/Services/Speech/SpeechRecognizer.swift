@@ -27,19 +27,19 @@ final class SpeechRecognizer: SpeechRecognizing {
     }
 
     func startTranscribing() -> AsyncThrowingStream<String, Error> {
-        let (stream, continuation) = AsyncThrowingStream<String, Error>.makeStream()
-        
-        do {
-            try start { text in
-                continuation.yield(text)
-            } onError: { error in
-                continuation.finish(throwing: error)
+        AsyncThrowingStream { [weak self] continuation in
+            guard let self else {
+                continuation.finish()
+                return
             }
-        } catch {
-            // Retry once — the simulator audio device can be temporarily
-            // unavailable while it reconfigures.
-            self.audioEngine.stop()
-            self.audioEngine.inputNode.removeTap(onBus: 0)
+
+            continuation.onTermination = { @Sendable [weak self] _ in
+                guard let strongSelf = self else { return }
+                Task { @MainActor in
+                    strongSelf.stopTranscribing()
+                }
+            }
+
             do {
                 try self.start { text in
                     continuation.yield(text)
@@ -47,18 +47,21 @@ final class SpeechRecognizer: SpeechRecognizing {
                     continuation.finish(throwing: error)
                 }
             } catch {
-                continuation.finish(throwing: error)
+                // Retry once — the simulator audio device can be temporarily
+                // unavailable while it reconfigures.
+                self.audioEngine.stop()
+                self.audioEngine.inputNode.removeTap(onBus: 0)
+                do {
+                    try self.start { text in
+                        continuation.yield(text)
+                    } onError: { error in
+                        continuation.finish(throwing: error)
+                    }
+                } catch {
+                    continuation.finish(throwing: error)
+                }
             }
         }
-
-        continuation.onTermination = { @Sendable [weak self] _ in
-            guard let strongSelf = self else { return }
-            Task { @MainActor in
-                strongSelf.stopTranscribing()
-            }
-        }
-        
-        return stream
     }
 
     func stopTranscribing() {
