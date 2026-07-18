@@ -8,6 +8,7 @@ struct ParsedIntentFields: Sendable {
     var occasion: Occasion?
     var durationDays: Int?
     var existingItems: [String]
+    var requiredItems: [String]
     var category: ProductCategory?
     var confidenceOverride: Double?
 }
@@ -27,6 +28,7 @@ enum IntentBuilder {
             occasion: occasion,
             durationDays: IntentHeuristics.detectDurationDays(in: trimmed),
             existingItems: IntentHeuristics.detectExistingItems(in: trimmed),
+            requiredItems: [],
             category: category(for: occasion),
             confidenceOverride: nil
         )
@@ -68,6 +70,7 @@ enum IntentBuilder {
             dietaryConstraints: fields.dietary,
             occasion: occasion,
             existingItems: fields.existingItems,
+            requiredItems: fields.requiredItems,
             category: fields.category,
             durationDays: fields.durationDays ?? (occasion == .weeklyRestock ? 7 : nil),
             subIntents: subIntents,

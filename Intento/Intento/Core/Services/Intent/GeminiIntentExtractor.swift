@@ -67,6 +67,7 @@ struct GeminiIntentExtractor: LLMIntentExtracting {
     static func prompt(for text: String) -> String {
         """
         You extract structured shopping intent from a user's request for an Indian grocery app.
+        The app is recipe-aware: if the user asks for a dish or meal, list ALL specific ingredients needed to make it.
         Return ONLY minified JSON matching this schema, no markdown:
         {
           "goal": string,
@@ -76,9 +77,17 @@ struct GeminiIntentExtractor: LLMIntentExtracting {
           "occasion": string|null (one of: everyday, weekly_restock, breakfast, dinner_party, movie_night, birthday, festival, guests_over, baby_care, illness, picnic, cleaning),
           "durationDays": number|null,
           "existingItems": string[],
+          "requiredItems": string[] (specific ingredient/product names needed, e.g. ["penne pasta", "butter", "milk", "flour", "cheese", "garlic", "black pepper", "cream", "salt"]),
           "category": string|null,
           "confidence": number (0..1)
         }
+        Rules for requiredItems:
+        - For recipes/dishes: list every ingredient needed (e.g. "white sauce pasta" → pasta, butter, flour, milk, cheese, garlic, cream, black pepper, salt, olive oil)
+        - For category requests (e.g. "cleaning kit"): list the specific products needed (e.g. floor cleaner, toilet cleaner, dishwash, scrub pad, garbage bags)
+        - For general shopping: list specific items the user would need
+        - Use simple, common grocery names that would match product names in a store
+        - Always include at least 3 items in requiredItems
+
         Infer sensible values when not stated and lower confidence accordingly.
         User request: "\(text)"
         """
@@ -119,6 +128,7 @@ struct ExtractedIntentDTO: Decodable, Sendable {
     let occasion: String?
     let durationDays: Int?
     let existingItems: [String]?
+    let requiredItems: [String]?
     let category: String?
     let confidence: Double?
 
@@ -131,6 +141,7 @@ struct ExtractedIntentDTO: Decodable, Sendable {
             occasion: occasion.flatMap(Occasion.init(rawValue:)),
             durationDays: durationDays,
             existingItems: existingItems ?? [],
+            requiredItems: requiredItems ?? [],
             category: category.flatMap(ProductCategory.init(rawValue:)),
             confidenceOverride: confidence
         )

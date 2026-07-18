@@ -27,7 +27,15 @@ enum MissionCatalogTags {
         "butter chicken": ["butter-chicken"],
         "chicken curry": ["curry", "chicken"],
         "biryani": ["chicken", "curry", "staple"],
-        "paneer": ["curry"],
+        "paneer": ["curry", "paneer"],
+        "shahi paneer": ["curry", "paneer", "shahi"],
+        "white sauce pasta": ["pasta", "white-sauce-pasta", "italian"],
+        "red sauce pasta": ["pasta", "red-sauce-pasta", "italian"],
+        "pasta": ["pasta", "italian"],
+        "alfredo": ["pasta", "white-sauce-pasta", "italian"],
+        "noodles": ["noodles", "chinese", "indo-chinese"],
+        "hakka noodles": ["noodles", "chinese", "hakka"],
+        "fried rice": ["chinese", "rice"],
         "movie": ["movie-night"],
         "party": ["party"],
         "breakfast": ["breakfast"],
@@ -45,6 +53,9 @@ enum MissionCatalogTags {
         "medicine": [.firstAid],
         "cleaning": [.cleaning],
         "groceries": [.produce, .dairy, .pantry, .bakery],
-        "restock": [.produce, .dairy, .pantry, .bakery]
+        "restock": [.produce, .dairy, .pantry, .bakery],
+        "pasta": [.pantry, .dairy, .produce],
+        "noodles": [.pantry, .produce],
+        "breakfast": [.dairy, .bakery, .pantry, .produce]
     ]
 }
