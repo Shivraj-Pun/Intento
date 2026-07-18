@@ -19,14 +19,13 @@ final class AppContainer {
     let personalization: PersonalizationStoring
     let auth: AuthServicing
 
-    init(config: AppConfig, personalization: PersonalizationStoring, auth: AuthServicing, snapshot: CatalogSnapshot? = nil) {
+    init(config: AppConfig, personalization: PersonalizationStoring, auth: AuthServicing) {
         self.config = config
         self.personalization = personalization
         self.auth = auth
 
-        let resolvedSnapshot = snapshot ?? AppContainer.loadSnapshot()
-        let catalog = MockProductCatalogService(snapshot: resolvedSnapshot)
-        let inventory = MockInventoryService(inventory: resolvedSnapshot.inventory, catalog: catalog)
+        let catalog = SupabaseProductCatalogService(client: SupabaseManager.client)
+        let inventory = SupabaseInventoryService(client: SupabaseManager.client, catalog: catalog)
         self.catalog = catalog
         self.inventory = inventory
 
@@ -98,7 +97,4 @@ final class AppContainer {
         return RecipeAwareMockExtractor()
     }
 
-    static func loadSnapshot() -> CatalogSnapshot {
-        (try? CatalogDecoder().loadBundledCatalog()) ?? .empty
-    }
 }
