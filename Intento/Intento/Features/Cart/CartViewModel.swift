@@ -124,11 +124,13 @@ final class CartViewModel {
     }
 
     func increment(_ item: CartItem) {
-        setQuantity(for: item, to: item.quantity + 1)
+        guard let index = baseCart.items.firstIndex(where: { $0.id == item.id }) else { return }
+        setQuantity(for: item, to: baseCart.items[index].quantity + 1)
     }
 
     func decrement(_ item: CartItem) {
-        setQuantity(for: item, to: item.quantity - 1)
+        guard let index = baseCart.items.firstIndex(where: { $0.id == item.id }) else { return }
+        setQuantity(for: item, to: baseCart.items[index].quantity - 1)
     }
 
     func remove(_ item: CartItem) {

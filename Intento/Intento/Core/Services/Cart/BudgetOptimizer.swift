@@ -10,6 +10,7 @@ struct BudgetOptimizer: BudgetOptimizing {
 
         let trimOrder: [CartItemSource] = [.suggestion, .personalization, .substitution, .generated, .userAdded]
 
+        // First pass: reduce quantities
         for source in trimOrder {
             if subtotal <= budget { break }
             let indices = items.indices.filter { items[$0].source == source }
@@ -21,10 +22,20 @@ struct BudgetOptimizer: BudgetOptimizing {
                     items[index].quantity -= 1
                     subtotal = subtotal - items[index].product.price
                 }
-                if source == .suggestion, subtotal > budget, items[index].quantity == 1 {
-                    subtotal = subtotal - items[index].lineTotal
-                    items[index].quantity = 0
-                }
+            }
+        }
+
+        // Second pass: remove items entirely (except userAdded) if still over budget
+        let removeOrder: [CartItemSource] = [.suggestion, .personalization, .substitution, .generated]
+        for source in removeOrder {
+            if subtotal <= budget { break }
+            let indices = items.indices.filter { items[$0].source == source && items[$0].quantity > 0 }
+            let sortedByCost = indices.sorted { items[$0].lineTotal > items[$1].lineTotal }
+
+            for index in sortedByCost {
+                if subtotal <= budget { break }
+                subtotal = subtotal - items[index].lineTotal
+                items[index].quantity = 0
             }
         }
 

@@ -23,7 +23,10 @@ struct RootView: View {
                         MissionView(
                             container: container,
                             seed: seed,
-                            onOrderPlaced: { confirmation in path.append(.order(confirmation)) }
+                            onItemsAdded: {
+                                path.removeAll()
+                                selectedTab = 2
+                            }
                         )
                     case .order(let confirmation):
                         OrderConfirmationView(confirmation: confirmation) {

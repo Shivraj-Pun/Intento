@@ -63,13 +63,14 @@ final class AppContainer {
 
     static func makeIntentExtractor(config: AppConfig) -> LLMIntentExtracting {
         guard !config.useMockServices, config.hasLLMKey, config.llmProvider.lowercased() == "gemini" else {
-            return MockIntentExtractor()
+            return RecipeAwareMockExtractor()
         }
-        return GeminiIntentExtractor(
+        let gemini = GeminiIntentExtractor(
             apiKey: config.llmAPIKey,
             baseURL: config.llmBaseURL,
             model: config.llmModel
         )
+        return FallbackIntentExtractor(primary: gemini)
     }
 
     static func loadSnapshot() -> CatalogSnapshot {

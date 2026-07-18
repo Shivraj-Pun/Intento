@@ -3,16 +3,18 @@ import SwiftUI
 struct MissionView: View {
     let container: AppContainer
     let seed: MissionSeed
-    let onOrderPlaced: (OrderConfirmation) -> Void
+    let onItemsAdded: () -> Void
 
+    @Environment(GlobalCartViewModel.self) private var globalCart
     @State private var ask: AskViewModel
     @State private var cart: CartViewModel?
     @State private var didStart = false
+    @State private var showAddedConfirmation = false
 
-    init(container: AppContainer, seed: MissionSeed, onOrderPlaced: @escaping (OrderConfirmation) -> Void) {
+    init(container: AppContainer, seed: MissionSeed, onItemsAdded: @escaping () -> Void) {
         self.container = container
         self.seed = seed
-        self.onOrderPlaced = onOrderPlaced
+        self.onItemsAdded = onItemsAdded
         _ask = State(initialValue: container.makeAskViewModel(initialText: seed.prompt))
     }
 
@@ -30,6 +32,11 @@ struct MissionView: View {
         .navigationTitle("Your cart")
         .navigationBarTitleDisplayMode(.inline)
         .background(AppColor.Semantic.background.ignoresSafeArea())
+        .overlay {
+            if showAddedConfirmation {
+                addedOverlay
+            }
+        }
         .task {
             guard !didStart else { return }
             didStart = true
@@ -40,15 +47,8 @@ struct MissionView: View {
 
     private var readyContent: some View {
         VStack(spacing: 0) {
-            AssumptionChipsBar(
-                assumptions: ask.assumptions,
-                confidence: ask.confidence,
-                confidenceLevel: ask.confidenceLevel,
-                onEdit: handleEdit
-            )
-            Divider()
             if let cart {
-                CartContentView(vm: cart, onOrderPlaced: onOrderPlaced)
+                CartContentView(vm: cart, onAddToCart: addToGlobalCart)
             } else if ask.needsClarification {
                 clarificationPrompt
             } else {
@@ -66,7 +66,7 @@ struct MissionView: View {
             Text("I'm not fully sure I got that")
                 .textStyle(.headingXS)
                 .foregroundStyle(AppColor.Semantic.textPrimary)
-            Text("Tweak the chips above so the cart is right, then build it.")
+            Text("Try rephrasing your request.")
                 .textStyle(.bodyMRegular)
                 .foregroundStyle(AppColor.Semantic.textSecondary)
                 .multilineTextAlignment(.center)
@@ -94,6 +94,24 @@ struct MissionView: View {
         }
     }
 
+    private var addedOverlay: some View {
+        VStack(spacing: AppSpacing.md) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(AppColor.Semantic.success)
+            Text("Items added to cart!")
+                .textStyle(.headingXS)
+                .foregroundStyle(AppColor.Semantic.textPrimary)
+        }
+        .padding(AppSpacing.xxl)
+        .background(
+            RoundedRectangle(cornerRadius: 25, style: .continuous)
+                .fill(AppColor.Semantic.surface)
+        )
+        .appShadow(AppShadow.md)
+        .transition(.scale.combined(with: .opacity))
+    }
+
     private func startCartIfReady() {
         guard cart == nil, ask.phase == .ready, !ask.needsClarification, ask.intent != nil else { return }
         startCart()
@@ -106,13 +124,20 @@ struct MissionView: View {
         cart = viewModel
     }
 
-    private func handleEdit(_ field: AssumptionField, _ newValue: String) {
-        ask.updateAssumption(field, to: newValue)
-        guard let intent = ask.intent else { return }
-        if let cart {
-            cart.regenerate(with: intent)
-        } else {
-            startCartIfReady()
+    private func addToGlobalCart() {
+        guard let cart else { return }
+        for item in cart.cart.items {
+            for _ in 0..<item.quantity {
+                globalCart.add(item.product)
+            }
+        }
+        withAnimation(.spring(duration: 0.4)) {
+            showAddedConfirmation = true
+        }
+        ask.haptics.play(.success)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            showAddedConfirmation = false
+            onItemsAdded()
         }
     }
 }

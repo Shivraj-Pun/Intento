@@ -62,6 +62,8 @@ struct ShoppingIntent: Identifiable, Codable, Hashable, Sendable {
 
     var existingItems: [String]
 
+    var requiredItems: [String]
+
     var category: ProductCategory?
 
     var durationDays: Int?
@@ -83,6 +85,7 @@ struct ShoppingIntent: Identifiable, Codable, Hashable, Sendable {
         dietaryConstraints: [DietaryConstraint] = [],
         occasion: Occasion? = nil,
         existingItems: [String] = [],
+        requiredItems: [String] = [],
         category: ProductCategory? = nil,
         durationDays: Int? = nil,
         subIntents: [SubIntent] = [],
@@ -98,6 +101,7 @@ struct ShoppingIntent: Identifiable, Codable, Hashable, Sendable {
         self.dietaryConstraints = dietaryConstraints
         self.occasion = occasion
         self.existingItems = existingItems
+        self.requiredItems = requiredItems
         self.category = category
         self.durationDays = durationDays
         self.subIntents = subIntents
@@ -116,5 +120,32 @@ struct ShoppingIntent: Identifiable, Codable, Hashable, Sendable {
 
     nonisolated var inferredAssumptions: [AssumptionField] {
         assumptions.filter(\.wasInferred)
+    }
+
+    // MARK: - Codable (gracefully handles missing requiredItems in legacy data)
+
+    private enum CodingKeys: String, CodingKey {
+        case id, rawText, goal, peopleCount, budget, dietaryConstraints
+        case occasion, existingItems, requiredItems, category, durationDays
+        case subIntents, confidence, assumptions, createdAt
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        rawText = try container.decode(String.self, forKey: .rawText)
+        goal = try container.decode(String.self, forKey: .goal)
+        peopleCount = try container.decodeIfPresent(Int.self, forKey: .peopleCount)
+        budget = try container.decodeIfPresent(Money.self, forKey: .budget)
+        dietaryConstraints = try container.decodeIfPresent([DietaryConstraint].self, forKey: .dietaryConstraints) ?? []
+        occasion = try container.decodeIfPresent(Occasion.self, forKey: .occasion)
+        existingItems = try container.decodeIfPresent([String].self, forKey: .existingItems) ?? []
+        requiredItems = try container.decodeIfPresent([String].self, forKey: .requiredItems) ?? []
+        category = try container.decodeIfPresent(ProductCategory.self, forKey: .category)
+        durationDays = try container.decodeIfPresent(Int.self, forKey: .durationDays)
+        subIntents = try container.decodeIfPresent([SubIntent].self, forKey: .subIntents) ?? []
+        confidence = try container.decodeIfPresent(Double.self, forKey: .confidence) ?? 1.0
+        assumptions = try container.decodeIfPresent([AssumptionField].self, forKey: .assumptions) ?? []
+        createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
     }
 }

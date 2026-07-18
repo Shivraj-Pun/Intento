@@ -32,7 +32,7 @@ enum AppButtonSize: Sendable {
     var cornerRadius: CGFloat {
         switch self {
         case .regular: AppRadius.md
-        case .small: 6
+        case .small: AppRadius.md
         }
     }
 }

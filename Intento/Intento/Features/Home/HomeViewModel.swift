@@ -14,7 +14,9 @@ final class HomeViewModel {
     var seasonalHint: String?
     var preferenceHints: [String] = []
 
-    let quickMissions: [String] = [
+    var quickMissions: [String] = []
+
+    private static let defaultQuickMissions: [String] = [
         "Butter chicken for 4 under ₹900",
         "Movie night for 6",
         "Weekly grocery restock",
@@ -32,12 +34,28 @@ final class HomeViewModel {
     func load() async {
         preference = (try? await personalization.loadPreferences()) ?? .empty
         recentMissions = (try? await personalization.recentMissions(limit: 10)) ?? []
+        computeQuickMissions()
         computeNudges()
     }
 
     func deleteMission(_ mission: SavedMission) async {
         try? await personalization.deleteMission(withID: mission.id)
         recentMissions.removeAll { $0.id == mission.id }
+    }
+
+    private func computeQuickMissions() {
+        // Show user's most frequently used missions first
+        let frequentMissions = recentMissions
+            .filter { $0.timesUsed >= 2 }
+            .sorted { $0.timesUsed > $1.timesUsed }
+            .prefix(6)
+            .map { $0.rawIntentText.isEmpty ? $0.title : $0.rawIntentText }
+
+        if frequentMissions.isEmpty {
+            quickMissions = Self.defaultQuickMissions
+        } else {
+            quickMissions = Array(frequentMissions)
+        }
     }
 
     private func computeNudges() {

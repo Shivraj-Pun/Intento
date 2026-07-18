@@ -2,7 +2,7 @@ import SwiftUI
 
 struct CartContentView: View {
     let vm: CartViewModel
-    let onOrderPlaced: (OrderConfirmation) -> Void
+    let onAddToCart: () -> Void
 
     @State private var replacingItem: CartItem?
 
@@ -14,14 +14,13 @@ struct CartContentView: View {
                 }
             }
 
-            optionsSection
-
-            if !vm.visibleSustainabilitySuggestions.isEmpty {
-                sustainabilitySection
-            }
-
-            if vm.nutritionAware {
-                nutritionSection
+            if vm.cart.budget != nil {
+                Section {
+                    Toggle(isOn: Binding(get: { vm.fitToBudget }, set: { _ in vm.toggleFitToBudget() })) {
+                        Label("Fit to budget", systemImage: "indianrupeesign.circle")
+                    }
+                    .tint(AppColor.Semantic.brandStrong)
+                }
             }
 
             ForEach(vm.cart.categories) { category in
@@ -52,16 +51,7 @@ struct CartContentView: View {
         .listStyle(.insetGrouped)
         .animation(.easeInOut(duration: 0.25), value: vm.cart.items.count)
         .safeAreaInset(edge: .bottom) {
-            BudgetSummaryBar(
-                itemCount: vm.cart.itemCount,
-                totalText: vm.format(vm.cart.subtotal),
-                budgetText: vm.cart.budget.map { vm.format($0) },
-                status: vm.budgetStatus,
-                etaMinutes: vm.cart.estimatedETAMinutes,
-                isCheckingOut: vm.isCheckingOut,
-                isDisabled: vm.cart.isEmpty,
-                onCheckout: checkout
-            )
+            addToCartBar
         }
         .sheet(item: $replacingItem) { item in
             AlternativesSheet(vm: vm, item: item)
@@ -82,66 +72,39 @@ struct CartContentView: View {
         }
     }
 
-    private var optionsSection: some View {
-        Section {
-            if vm.cart.budget != nil {
-                Toggle(isOn: Binding(get: { vm.fitToBudget }, set: { _ in vm.toggleFitToBudget() })) {
-                    Label("Fit to budget", systemImage: "indianrupeesign.circle")
-                }
-                .tint(AppColor.Semantic.brandStrong)
-            }
-            Toggle(isOn: Binding(get: { vm.nutritionAware }, set: { vm.setNutritionAware($0) })) {
-                Label("Healthier swaps", systemImage: "heart.text.square")
-            }
-            .tint(AppColor.Semantic.brandStrong)
-        }
-    }
+    private var addToCartBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+            HStack(alignment: .center, spacing: AppSpacing.md) {
+                VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                    Text(vm.format(vm.cart.subtotal))
+                        .textStyle(.headingXS)
+                        .foregroundStyle(AppColor.Semantic.textPrimary)
+                        .contentTransition(.numericText())
 
-    private var sustainabilitySection: some View {
-        Section("Sustainable options") {
-            ForEach(vm.visibleSustainabilitySuggestions) { suggestion in
-                HStack(spacing: AppSpacing.md) {
-                    Image(systemName: "leaf.fill")
-                        .foregroundStyle(AppColor.Semantic.success)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(suggestion.suggestedName)
-                            .textStyle(.bodySMedium)
-                            .foregroundStyle(AppColor.Semantic.textPrimary)
-                        if let message = suggestion.message {
-                            Text(message)
+                    HStack(spacing: AppSpacing.xs) {
+                        Text("\(vm.cart.itemCount) items")
+                            .textStyle(.caption)
+                            .foregroundStyle(AppColor.Semantic.textSecondary)
+                        if let etaMinutes = vm.cart.estimatedETAMinutes {
+                            Text("· \(etaMinutes) min")
                                 .textStyle(.caption)
-                                .foregroundStyle(AppColor.Semantic.textSecondary)
+                                .foregroundStyle(AppColor.Semantic.textTertiary)
                         }
                     }
-                    Spacer()
-                    Button("Swap") {
-                        Task { await vm.applySuggestion(suggestion) }
-                    }
-                    .buttonStyle(AppButtonStyle(variant: .secondary, size: .small))
                 }
-                .swipeActions {
-                    Button {
-                        vm.dismissSuggestion(suggestion)
-                    } label: {
-                        Label("Dismiss", systemImage: "xmark")
-                    }
-                }
-            }
-        }
-    }
 
-    private var nutritionSection: some View {
-        Section("Healthier swaps") {
-            let candidates = vm.cart.items.filter { $0.product.healthierAlternativeSKU != nil }
-            if candidates.isEmpty {
-                Text("Your cart already looks healthy.")
-                    .textStyle(.bodySRegular)
-                    .foregroundStyle(AppColor.Semantic.textSecondary)
-            } else {
-                ForEach(candidates) { item in
-                    NutritionSwapRow(vm: vm, item: item)
+                Spacer()
+
+                Button(action: onAddToCart) {
+                    Text("Add to Cart")
                 }
+                .buttonStyle(AppButtonStyle(variant: .primary))
+                .disabled(vm.cart.isEmpty || vm.phase != .ready)
             }
+            .padding(.horizontal, Theme.screenPadding)
+            .padding(.vertical, AppSpacing.md)
+            .background(AppColor.Semantic.surface)
         }
     }
 
@@ -151,51 +114,6 @@ struct CartContentView: View {
             systemImage: "cart",
             description: Text("Adjust the assumptions above or start a new mission.")
         )
-    }
-
-    private func checkout() {
-        Task {
-            await vm.checkout()
-            if let confirmation = vm.orderConfirmation {
-                onOrderPlaced(confirmation)
-            }
-        }
-    }
-}
-
-private struct NutritionSwapRow: View {
-    let vm: CartViewModel
-    let item: CartItem
-    @State private var alternative: Product?
-    @State private var isLoading = false
-
-    var body: some View {
-        HStack(spacing: AppSpacing.md) {
-            Image(systemName: "heart.fill")
-                .foregroundStyle(AppColor.Semantic.success)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.product.displayTitle)
-                    .textStyle(.bodySMedium)
-                    .foregroundStyle(AppColor.Semantic.textPrimary)
-                if let alternative {
-                    Text("Try \(alternative.displayTitle)")
-                        .textStyle(.caption)
-                        .foregroundStyle(AppColor.Semantic.textSecondary)
-                }
-            }
-            Spacer()
-            if let alternative {
-                Button("Swap") { vm.replace(item, with: alternative) }
-                    .buttonStyle(AppButtonStyle(variant: .secondary, size: .small))
-            } else if isLoading {
-                ProgressView()
-            }
-        }
-        .task {
-            isLoading = true
-            alternative = await vm.healthierAlternative(for: item)
-            isLoading = false
-        }
     }
 }
 
