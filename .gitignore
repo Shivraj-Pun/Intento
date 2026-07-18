@@ -1,0 +1,51 @@
+# ---------------------------------------------------------------------------
+# Ask Blinkit (Intento) — .gitignore
+# ---------------------------------------------------------------------------
+
+# Environment / secrets (never commit real keys)
+.env
+**/.env
+!.env.example
+# Bundled runtime env (Xcode sync groups skip dot-files, so it is named
+# Environment.env). Keep it out of version control; commit only the template.
+**/Environment.env
+!**/Environment.env.example
+
+# macOS
+.DS_Store
+*.swp
+
+# Xcode
+build/
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# CocoaPods / Carthage (in case added later)
+Pods/
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
