@@ -5,6 +5,7 @@ struct CartContentView: View {
     let onAddToCart: () -> Void
 
     @State private var replacingItem: CartItem?
+    @State private var isShowingSearchSheet = false
 
     var body: some View {
         List {
@@ -63,6 +64,21 @@ struct CartContentView: View {
                 }
             }
 
+            if vm.phase == .ready {
+                Section {
+                    Button {
+                        isShowingSearchSheet = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "plus")
+                            Text("Add new item")
+                        }
+                        .foregroundStyle(AppColor.Semantic.brandStrong)
+                        .textStyle(.bodyMMedium)
+                    }
+                }
+            }
+
             if vm.phase == .ready && vm.cart.isEmpty {
                 emptyState
             }
@@ -74,6 +90,9 @@ struct CartContentView: View {
         }
         .sheet(item: $replacingItem) { item in
             AlternativesSheet(vm: vm, item: item)
+        }
+        .sheet(isPresented: $isShowingSearchSheet) {
+            ItemSearchSheet(vm: vm)
         }
     }
 
@@ -186,6 +205,60 @@ private struct AlternativesSheet: View {
             .task {
                 products = await vm.alternatives(for: item)
                 isLoading = false
+            }
+        }
+    }
+}
+
+private struct ItemSearchSheet: View {
+    let vm: CartViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var query = ""
+    @State private var products: [Product] = []
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if products.isEmpty && !query.isEmpty {
+                    Text("No products found.")
+                        .foregroundStyle(AppColor.Semantic.textSecondary)
+                } else {
+                    ForEach(products) { product in
+                        Button {
+                            vm.addProduct(product)
+                            dismiss()
+                        } label: {
+                            HStack(spacing: AppSpacing.md) {
+                                ProductThumbnail(category: product.category, size: 38)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(product.displayTitle)
+                                        .textStyle(.bodyMMedium)
+                                        .foregroundStyle(AppColor.Semantic.textPrimary)
+                                    Text(product.packSize.displayLabel)
+                                        .textStyle(.caption)
+                                        .foregroundStyle(AppColor.Semantic.textTertiary)
+                                }
+                                Spacer()
+                                Text(vm.format(product.price))
+                                    .textStyle(.bodyMMedium)
+                                    .foregroundStyle(AppColor.Semantic.textPrimary)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Add item")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $query, prompt: "Search products...")
+            .onChange(of: query, initial: true) { _, newQuery in
+                Task {
+                    products = await vm.searchCatalog(query: newQuery)
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") { dismiss() }
+                }
             }
         }
     }

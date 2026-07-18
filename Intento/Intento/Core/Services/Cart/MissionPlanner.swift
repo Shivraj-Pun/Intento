@@ -75,6 +75,14 @@ struct MissionPlanner {
         for requiredItem in intent.requiredItems {
             let normalized = requiredItem.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
             guard !normalized.isEmpty else { continue }
+            
+            // Check if the required item is something the user already has
+            let isExisting = intent.existingItems.contains { token in
+                let trimmed = token.lowercased().trimmingCharacters(in: .whitespaces)
+                guard trimmed.count > 2 else { return false }
+                return normalized.contains(trimmed) || trimmed.contains(normalized)
+            }
+            guard !isExisting else { continue }
 
             let tokens = normalized.split(separator: " ").map(String.init)
 

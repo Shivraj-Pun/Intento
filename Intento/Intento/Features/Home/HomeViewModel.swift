@@ -17,7 +17,7 @@ final class HomeViewModel {
     var quickMissions: [String] = []
 
     private static let defaultQuickMissions: [String] = [
-        "Butter chicken for 4 under ₹900",
+        "Butter chicken for 4",
         "Movie night for 6",
         "Weekly grocery restock",
         "Healthy breakfast for 2",
@@ -46,16 +46,17 @@ final class HomeViewModel {
     private func computeQuickMissions() {
         // Show user's most frequently used missions first
         let frequentMissions = recentMissions
-            .filter { $0.timesUsed >= 2 }
             .sorted { $0.timesUsed > $1.timesUsed }
-            .prefix(6)
             .map { $0.rawIntentText.isEmpty ? $0.title : $0.rawIntentText }
+            .prefix(6)
 
-        if frequentMissions.isEmpty {
-            quickMissions = Self.defaultQuickMissions
-        } else {
-            quickMissions = Array(frequentMissions)
+        var combined = Array(frequentMissions)
+        for def in Self.defaultQuickMissions {
+            if combined.count < 6 && !combined.contains(def) {
+                combined.append(def)
+            }
         }
+        quickMissions = combined
     }
 
     private func computeNudges() {

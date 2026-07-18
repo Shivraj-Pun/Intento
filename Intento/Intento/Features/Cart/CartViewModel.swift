@@ -211,6 +211,28 @@ final class CartViewModel {
         await learnPreferences()
     }
 
+    func searchCatalog(query: String) async -> [Product] {
+        if query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return (try? await catalog.allProducts()) ?? []
+        }
+        return (try? await catalog.search(query)) ?? []
+    }
+
+    func addProduct(_ product: Product) {
+        if let index = baseCart.items.firstIndex(where: { $0.product.sku == product.sku }) {
+            baseCart.items[index].quantity += 1
+        } else {
+            let newItem = CartItem(
+                product: product,
+                quantity: 1,
+                source: .userAdded
+            )
+            baseCart.items.append(newItem)
+        }
+        rebuild()
+        haptics.play(.success)
+    }
+
     private func rebuild() {
         if fitToBudget, let budget = intent.budget {
             cart = budgetOptimizer.fitToBudget(baseCart, budget: budget)
