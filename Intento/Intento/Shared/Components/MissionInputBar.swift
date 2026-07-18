@@ -11,7 +11,7 @@ struct MissionInputBar: View {
 
     var body: some View {
         HStack(spacing: AppSpacing.sm) {
-            Image(systemName: "sparkle.magnifyingglass")
+            Image(systemName: "magnifyingglass")
                 .foregroundStyle(AppColor.Semantic.textTertiary)
 
             TextField(placeholder, text: $text, axis: .vertical)
@@ -40,24 +40,13 @@ struct MissionInputBar: View {
             .buttonStyle(.plain)
             .accessibilityLabel(isListening ? "Stop listening" : "Dictate")
 
-            Button(action: onSubmit) {
-                Image(systemName: "arrow.up.circle.fill")
-                    .font(.title)
-                    .foregroundStyle(text.isEmpty ? AppColor.Semantic.textTertiary : AppColor.Semantic.brandStrong)
-            }
-            .buttonStyle(.plain)
-            .disabled(text.trimmingCharacters(in: .whitespaces).isEmpty)
+
         }
         .padding(.horizontal, AppSpacing.lg)
         .padding(.vertical, AppSpacing.md)
         .background(
-            RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous)
+            RoundedRectangle(cornerRadius: 25, style: .continuous)
                 .fill(AppColor.Semantic.surface)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous)
-                .strokeBorder(isFocused ? AppColor.Primary.s500 : AppColor.Semantic.border, lineWidth: 1.5)
-        )
-        .appShadow(AppShadow.sm)
     }
 }

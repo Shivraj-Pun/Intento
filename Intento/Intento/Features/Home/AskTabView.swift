@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct HomeView: View {
+struct AskTabView: View {
     let container: AppContainer
     let onSubmit: (String) -> Void
     let onOpenSettings: () -> Void
@@ -8,6 +8,7 @@ struct HomeView: View {
     @State private var vm: HomeViewModel
     @State private var ask: AskViewModel
     @State private var placeholderIndex = 0
+    @State private var showingAllRecents = false
 
     private let placeholders = [
         "Butter chicken for 4 under ₹900",
@@ -28,10 +29,8 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.xxl) {
-                header
                 inputSection
                 quickMissions
-                nudges
                 recents
             }
             .padding(.horizontal, Theme.screenPadding)
@@ -53,16 +52,7 @@ struct HomeView: View {
         .task { await rotatePlaceholders() }
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            Text("What can I get you?")
-                .textStyle(.headingM)
-                .foregroundStyle(AppColor.Semantic.textPrimary)
-            Text("Describe your mission and I'll build the cart.")
-                .textStyle(.bodyMRegular)
-                .foregroundStyle(AppColor.Semantic.textSecondary)
-        }
-    }
+
 
     private var inputSection: some View {
         MissionInputBar(
@@ -77,8 +67,8 @@ struct HomeView: View {
     private var quickMissions: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             Text("Quick missions")
-                .textStyle(.label)
-                .foregroundStyle(AppColor.Semantic.textSecondary)
+                .textStyle(.headingXS)
+                .foregroundStyle(AppColor.Semantic.textPrimary)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: AppSpacing.sm) {
                     ForEach(vm.quickMissions, id: \.self) { mission in
@@ -93,69 +83,57 @@ struct HomeView: View {
         }
     }
 
-    @ViewBuilder
-    private var nudges: some View {
-        let items = nudgeItems
-        if !items.isEmpty {
-            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                ForEach(items) { item in
-                    Button {
-                        if let prompt = item.prompt {
-                            ask.haptics.play(.selection)
-                            onSubmit(prompt)
-                        }
-                    } label: {
-                        HStack(spacing: AppSpacing.md) {
-                            Image(systemName: item.icon)
-                                .foregroundStyle(AppColor.Semantic.brandStrong)
-                            Text(item.text)
-                                .textStyle(.bodyMMedium)
-                                .foregroundStyle(AppColor.Semantic.textPrimary)
-                                .multilineTextAlignment(.leading)
-                            Spacer()
-                            if item.prompt != nil {
-                                Image(systemName: "chevron.right")
-                                    .font(.footnote)
-                                    .foregroundStyle(AppColor.Semantic.textTertiary)
-                            }
-                        }
-                        .padding(AppSpacing.lg)
-                        .background(
-                            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
-                                .fill(AppColor.Semantic.surface)
-                        )
-                        .appShadow(AppShadow.xs)
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(item.prompt == nil)
-                }
-            }
-        }
-    }
+
 
     @ViewBuilder
     private var recents: some View {
         if !vm.recentMissions.isEmpty {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                Text("Recent missions")
-                    .textStyle(.label)
-                    .foregroundStyle(AppColor.Semantic.textSecondary)
-                ForEach(vm.recentMissions) { mission in
-                    Button {
-                        ask.haptics.play(.selection)
-                        onSubmit(mission.rawIntentText.isEmpty ? mission.title : mission.rawIntentText)
-                    } label: {
-                        recentRow(mission)
+                HStack {
+                    Text("Recent missions")
+                        .textStyle(.headingXS)
+                        .foregroundStyle(AppColor.Semantic.textPrimary)
+                    Spacer()
+                    if vm.recentMissions.count > 5 {
+                        Button(showingAllRecents ? "View less" : "View all") {
+                            withAnimation {
+                                showingAllRecents.toggle()
+                            }
+                        }
+                        .textStyle(.buttonM)
+                        .foregroundStyle(AppColor.Semantic.brandStrong)
                     }
-                    .buttonStyle(.plain)
-                    .contextMenu {
-                        Button(role: .destructive) {
-                            Task { await vm.deleteMission(mission) }
+                }
+                
+                VStack(spacing: 0) {
+                    let displayed = showingAllRecents ? vm.recentMissions : Array(vm.recentMissions.prefix(5))
+                    ForEach(Array(displayed.enumerated()), id: \.element.id) { index, mission in
+                        Button {
+                            ask.haptics.play(.selection)
+                            onSubmit(mission.rawIntentText.isEmpty ? mission.title : mission.rawIntentText)
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            recentRow(mission)
+                        }
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                Task { await vm.deleteMission(mission) }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                        
+                        if index < displayed.count - 1 {
+                            Divider()
+                                .padding(.leading, 52) // roughly aligns with text (icon + spacing)
                         }
                     }
                 }
+                .background(
+                    RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                        .fill(AppColor.Semantic.surface)
+                )
+                .appShadow(AppShadow.xs)
             }
         }
     }
@@ -181,33 +159,10 @@ struct HomeView: View {
                 .foregroundStyle(AppColor.Semantic.textTertiary)
         }
         .padding(AppSpacing.lg)
-        .background(
-            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
-                .fill(AppColor.Semantic.surface)
-        )
-        .appShadow(AppShadow.xs)
+        .contentShape(Rectangle())
     }
 
-    private struct NudgeItem: Identifiable {
-        let id = UUID()
-        let icon: String
-        let text: String
-        let prompt: String?
-    }
 
-    private var nudgeItems: [NudgeItem] {
-        var items: [NudgeItem] = []
-        if let restock = vm.restockNudge {
-            items.append(NudgeItem(icon: "arrow.clockwise.circle.fill", text: restock, prompt: "Weekly grocery restock"))
-        }
-        if let seasonal = vm.seasonalHint {
-            items.append(NudgeItem(icon: "leaf.fill", text: seasonal, prompt: nil))
-        }
-        for hint in vm.preferenceHints {
-            items.append(NudgeItem(icon: "heart.fill", text: hint, prompt: nil))
-        }
-        return items
-    }
 
     private func submit() {
         let text = ask.inputText.trimmingCharacters(in: .whitespacesAndNewlines)

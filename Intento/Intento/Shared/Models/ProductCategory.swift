@@ -40,7 +40,7 @@ enum ProductCategory: String, Codable, CaseIterable, Hashable, Sendable, Identif
     nonisolated var iconName: String {
         switch self {
         case .produce: "carrot.fill"
-        case .dairy: "carton.fill"
+        case .dairy: "shippingbox.fill"
         case .meat: "fish.fill"
         case .bakery: "birthday.cake.fill"
         case .pantry: "bag.fill"
