@@ -74,6 +74,7 @@ struct MissionPlanner {
         var selected: [Product] = []
         var usedSKUs: Set<String> = []
         var unmatched: [String] = []
+        let intentTags = tags(for: intent)
 
         for requiredItem in intent.requiredItems {
             let normalized = requiredItem.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
@@ -100,11 +101,17 @@ struct MissionPlanner {
                 let haystack = (product.name + " " + (product.brand ?? "") + " " + product.tags.joined(separator: " ")).lowercased()
 
                 var score = 0
+                let productNameLower = product.name.lowercased()
+                let productTokens = productNameLower.split(separator: " ").map(String.init)
 
-                // Exact name containment (highest signal)
-                if product.name.lowercased().contains(normalized) {
+                // Exact match (highest signal)
+                if productNameLower == normalized || productNameLower == normalized + "s" {
+                    score += 50
+                } else if productTokens.contains(normalized) || productTokens.contains(normalized + "s") {
+                    score += 20
+                } else if productNameLower.contains(normalized) {
                     score += 10
-                } else if normalized.contains(product.name.lowercased()) {
+                } else if normalized.contains(productNameLower) {
                     score += 8
                 }
 
@@ -114,10 +121,17 @@ struct MissionPlanner {
                 }
                 score += matchedTokens.count * 3
 
-                // Tag exact match
+                // Penalize longer names to favor core matches over accessory items (like Masala/Paste)
+                score -= productTokens.count
+
+                // Tag exact match (very strong signal)
                 if product.tags.contains(where: { $0.lowercased() == normalized || tokens.contains($0.lowercased()) }) {
-                    score += 5
+                    score += 25
                 }
+                
+                // Boost for intent context
+                let overlappingContextTags = intentTags.intersection(Set(product.tags))
+                score += overlappingContextTags.count * 10
 
                 // Prefer user's preferred product
                 if let preferred = preference?.preferredProduct(in: product.category), preferred.sku == product.sku {

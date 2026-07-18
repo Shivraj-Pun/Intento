@@ -20,6 +20,10 @@ struct AppHomeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: AppSpacing.lg) {
+                MissionInputBar(text: $searchText, placeholder: "Search items...")
+                    .padding(.horizontal, Theme.screenPadding)
+                    .padding(.top, AppSpacing.sm)
+
                 if isShowingSearch {
                     searchResultsView
                 } else {
@@ -30,17 +34,6 @@ struct AppHomeView: View {
         }
         .background(AppColor.Semantic.background.ignoresSafeArea())
         .navigationTitle("Intento")
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search items...")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    // Mic placeholder
-                } label: {
-                    Image(systemName: "mic.fill")
-                        .foregroundColor(AppColor.Semantic.brandStrong)
-                }
-            }
-        }
         .onChange(of: searchText) { _, newValue in
             performSearch(query: newValue)
         }
@@ -111,7 +104,7 @@ struct AppHomeView: View {
             LazyVGrid(columns: columns, spacing: AppSpacing.md) {
                 ForEach(ProductCategory.allCases) { category in
                     NavigationLink(destination: CategoryItemsView(container: container, category: category)) {
-                        ZStack(alignment: .bottomLeading) {
+                        ZStack(alignment: .bottom) {
                             // Background Image
                             if let assetName = category.assetName {
                                 Image(assetName)
@@ -141,9 +134,8 @@ struct AppHomeView: View {
                                 .font(.headline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.white)
-                                .multilineTextAlignment(.leading)
+                                .multilineTextAlignment(.center)
                                 .lineLimit(2)
-                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(AppSpacing.md)
                         }
                         .frame(minWidth: 0, maxWidth: .infinity)

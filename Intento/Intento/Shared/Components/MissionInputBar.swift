@@ -2,10 +2,10 @@ import SwiftUI
 
 struct MissionInputBar: View {
     @Binding var text: String
-    let isListening: Bool
+    var isListening: Bool = false
     let placeholder: String
-    let onMic: () -> Void
-    let onSubmit: () -> Void
+    var onMic: (() -> Void)? = nil
+    var onSubmit: (() -> Void)? = nil
 
     @FocusState private var isFocused: Bool
 
@@ -19,7 +19,7 @@ struct MissionInputBar: View {
                 .focused($isFocused)
                 .lineLimit(1...4)
                 .submitLabel(.go)
-                .onSubmit(onSubmit)
+                .onSubmit { onSubmit?() }
 
             if !text.isEmpty {
                 Button {
@@ -31,14 +31,16 @@ struct MissionInputBar: View {
                 .buttonStyle(.plain)
             }
 
-            Button(action: onMic) {
-                Image(systemName: isListening ? "waveform.circle.fill" : "mic.fill")
-                    .font(.title3)
-                    .foregroundStyle(isListening ? AppColor.Semantic.error : AppColor.Semantic.brandStrong)
-                    .symbolEffect(.pulse, isActive: isListening)
+            if let onMic = onMic {
+                Button(action: onMic) {
+                    Image(systemName: isListening ? "waveform.circle.fill" : "mic.fill")
+                        .font(.title3)
+                        .foregroundStyle(isListening ? AppColor.Semantic.error : AppColor.Semantic.brandStrong)
+                        .symbolEffect(.pulse, isActive: isListening)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(isListening ? "Stop listening" : "Dictate")
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(isListening ? "Stop listening" : "Dictate")
 
 
         }
