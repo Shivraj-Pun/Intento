@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C64CAD62300BEB9800D074F4 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C64CAD61300BEB9800D074F4 /* Auth */; };
+		C64CAD64300BEB9800D074F4 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = C64CAD63300BEB9800D074F4 /* Functions */; };
+		C64CAD66300BEB9800D074F4 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C64CAD65300BEB9800D074F4 /* PostgREST */; };
+		C64CAD68300BEB9800D074F4 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = C64CAD67300BEB9800D074F4 /* Realtime */; };
+		C64CAD6A300BEB9800D074F4 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C64CAD69300BEB9800D074F4 /* Storage */; };
+		C64CAD6C300BEB9800D074F4 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C64CAD6B300BEB9800D074F4 /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		D7956A24300B755A005A0E45 /* Intento.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Intento.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +32,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C64CAD66300BEB9800D074F4 /* PostgREST in Frameworks */,
+				C64CAD64300BEB9800D074F4 /* Functions in Frameworks */,
+				C64CAD6C300BEB9800D074F4 /* Supabase in Frameworks */,
+				C64CAD62300BEB9800D074F4 /* Auth in Frameworks */,
+				C64CAD6A300BEB9800D074F4 /* Storage in Frameworks */,
+				C64CAD68300BEB9800D074F4 /* Realtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +80,12 @@
 			);
 			name = Intento;
 			packageProductDependencies = (
+				C64CAD61300BEB9800D074F4 /* Auth */,
+				C64CAD63300BEB9800D074F4 /* Functions */,
+				C64CAD65300BEB9800D074F4 /* PostgREST */,
+				C64CAD67300BEB9800D074F4 /* Realtime */,
+				C64CAD69300BEB9800D074F4 /* Storage */,
+				C64CAD6B300BEB9800D074F4 /* Supabase */,
 			);
 			productName = Intento;
 			productReference = D7956A24300B755A005A0E45 /* Intento.app */;
@@ -94,6 +115,9 @@
 			);
 			mainGroup = D7956A1B300B755A005A0E45;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C64CAD60300BEB9800D074F4 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D7956A25300B755A005A0E45 /* Products */;
 			projectDirPath = "";
@@ -332,6 +356,52 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C64CAD60300BEB9800D074F4 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+			traits = (
+			);
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C64CAD61300BEB9800D074F4 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C64CAD60300BEB9800D074F4 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		C64CAD63300BEB9800D074F4 /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C64CAD60300BEB9800D074F4 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		C64CAD65300BEB9800D074F4 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C64CAD60300BEB9800D074F4 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		C64CAD67300BEB9800D074F4 /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C64CAD60300BEB9800D074F4 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		C64CAD69300BEB9800D074F4 /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C64CAD60300BEB9800D074F4 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		C64CAD6B300BEB9800D074F4 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C64CAD60300BEB9800D074F4 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D7956A1C300B755A005A0E45 /* Project object */;
 }

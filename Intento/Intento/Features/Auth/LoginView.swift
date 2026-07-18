@@ -41,6 +41,11 @@ struct LoginView: View {
             }
             .padding(24)
             .background(AppColor.Semantic.background.ignoresSafeArea())
+            .alert("Invalid Length", isPresented: $vm.showPhoneLengthAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Phone number cannot exceed 10 digits.")
+            }
         }
     }
     

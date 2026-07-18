@@ -9,7 +9,19 @@ final class LoginViewModel: ObservableObject {
     }
     
     @Published var currentStep: Step = .phoneEntry
-    @Published var phoneNumber: String = ""
+    @Published var phoneNumber: String = "" {
+        didSet {
+            let filtered = phoneNumber.filter { $0.isNumber }
+            if filtered.count > 10 {
+                showPhoneLengthAlert = true
+            }
+            let truncated = String(filtered.prefix(10))
+            if phoneNumber != truncated {
+                phoneNumber = truncated
+            }
+        }
+    }
+    @Published var showPhoneLengthAlert: Bool = false
     @Published var name: String = ""
     @Published var otp: String = ""
     @Published var isProcessing: Bool = false
@@ -39,6 +51,7 @@ final class LoginViewModel: ObservableObject {
                 try await authService.sendOTP(phone: phoneNumber)
                 currentStep = .otpEntry
             } catch {
+                print("❌ Failed to send OTP: \(error.localizedDescription)")
                 errorMessage = "Failed to send OTP. Please try again."
             }
             isProcessing = false

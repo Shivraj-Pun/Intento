@@ -12,12 +12,10 @@ struct IntentoApp: App {
 
         let resolvedContainer: ModelContainer
         let store: PersonalizationStoring
-        let authService: AuthServicing
         do {
             let modelContainer = try ModelContainer(for: schema)
             resolvedContainer = modelContainer
             store = SwiftDataPersonalizationStore(context: modelContainer.mainContext)
-            authService = MockSwiftDataAuthService(modelContext: modelContainer.mainContext)
         } catch {
             let fallback = try! ModelContainer(
                 for: schema,
@@ -25,8 +23,9 @@ struct IntentoApp: App {
             )
             resolvedContainer = fallback
             store = InMemoryPersonalizationStore()
-            authService = MockSwiftDataAuthService(modelContext: fallback.mainContext) // Or a different mock if needed
         }
+
+        let authService: AuthServicing = SupabaseAuthService()
 
         self.modelContainer = resolvedContainer
         _container = State(initialValue: AppContainer(config: config, personalization: store, auth: authService))
@@ -60,7 +59,7 @@ struct IntentoApp: App {
     
     private func triggerSplash() {
         showSplash = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             withAnimation(.easeInOut(duration: 0.3)) {
                 showSplash = false
             }
