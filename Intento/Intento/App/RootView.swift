@@ -73,8 +73,28 @@ struct RootView: View {
 
     private func handlePending(_ prompt: String?) {
         guard let prompt, !prompt.isEmpty else { return }
-        pending.pendingPrompt = nil
+
+        // Consume structured mission data if available
+        let mission = pending.consume()
+        let resolvedPrompt = mission?.prompt ?? prompt
+
         selectedTab = 0 // Switch to Ask tab
-        path.append(.mission(MissionSeed(prompt: prompt)))
+
+        // Build a richer prompt that embeds Siri parameters so the intent extractor can use them
+        var enrichedPrompt = resolvedPrompt
+        if let count = mission?.peopleCount, !resolvedPrompt.lowercased().contains("\(count) people") {
+            enrichedPrompt += " for \(count) people"
+        }
+        if let budget = mission?.budget, !resolvedPrompt.lowercased().contains("budget") {
+            enrichedPrompt += " within ₹\(budget) budget"
+        }
+        if let dietary = mission?.dietaryConstraints, !dietary.isEmpty {
+            let joined = dietary.joined(separator: ", ")
+            if !resolvedPrompt.lowercased().contains(joined.lowercased()) {
+                enrichedPrompt += " (\(joined))"
+            }
+        }
+
+        path.append(.mission(MissionSeed(prompt: enrichedPrompt)))
     }
 }
