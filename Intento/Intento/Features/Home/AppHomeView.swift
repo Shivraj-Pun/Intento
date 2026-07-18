@@ -20,43 +20,6 @@ struct AppHomeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: AppSpacing.lg) {
-            
-                // Search Bar
-                HStack(spacing: AppSpacing.sm) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(AppColor.Semantic.textSecondary)
-                    TextField("Search items...", text: $searchText)
-                        .textStyle(.bodyMRegular)
-                        .foregroundColor(AppColor.Semantic.textPrimary)
-                        .autocorrectionDisabled()
-                    
-                    if isShowingSearch {
-                        Button {
-                            searchText = ""
-                            searchResults = []
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.body)
-                                .foregroundColor(AppColor.Semantic.textTertiary)
-                        }
-                        .buttonStyle(.plain)
-                    } else {
-                        Button {
-                            // Mic action placeholder
-                        } label: {
-                            Image(systemName: "mic.fill")
-                                .font(.title3)
-                                .foregroundColor(AppColor.Semantic.brandStrong)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(AppSpacing.md)
-                .background(AppColor.Semantic.surface)
-                .cornerRadius(25)
-                .appShadow(AppShadow.xs)
-                .padding(.horizontal, Theme.screenPadding)
-
                 if isShowingSearch {
                     searchResultsView
                 } else {
@@ -67,6 +30,17 @@ struct AppHomeView: View {
         }
         .background(AppColor.Semantic.background.ignoresSafeArea())
         .navigationTitle("Intento")
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search items...")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    // Mic placeholder
+                } label: {
+                    Image(systemName: "mic.fill")
+                        .foregroundColor(AppColor.Semantic.brandStrong)
+                }
+            }
+        }
         .onChange(of: searchText) { _, newValue in
             performSearch(query: newValue)
         }
@@ -126,29 +100,58 @@ struct AppHomeView: View {
     // MARK: - Categories
 
     private var categoriesView: some View {
-        VStack(spacing: AppSpacing.lg) {
+        VStack(alignment: .leading, spacing: AppSpacing.lg) {
+            Text("Shop by Category")
+                .font(.title2.bold())
+                .foregroundColor(AppColor.Semantic.textPrimary)
+                .padding(.horizontal, Theme.screenPadding)
+                .padding(.top, AppSpacing.sm)
+            
             // Categories
             LazyVGrid(columns: columns, spacing: AppSpacing.md) {
                 ForEach(ProductCategory.allCases) { category in
                     NavigationLink(destination: CategoryItemsView(container: container, category: category)) {
-                        VStack(spacing: AppSpacing.sm) {
-                            Image(systemName: category.iconName)
-                                .font(.system(size: 32))
-                                .foregroundColor(AppColor.Semantic.brandStrong)
+                        ZStack(alignment: .bottomLeading) {
+                            // Background Image
+                            if let assetName = category.assetName {
+                                Image(assetName)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            } else if let url = category.imageURL {
+                                AsyncImage(url: url) { image in
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                } placeholder: {
+                                    Rectangle().fill(Color.gray.opacity(0.3))
+                                }
+                            } else {
+                                Rectangle().fill(Color.gray.opacity(0.3))
+                            }
+                            
+                            // Gradient overlay for text readability
+                            LinearGradient(
+                                colors: [.clear, .black.opacity(0.7)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                            
+                            // Category Title
                             Text(category.displayName)
-                                .textStyle(.bodySMedium)
-                                .foregroundColor(AppColor.Semantic.textPrimary)
-                                .multilineTextAlignment(.center)
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.leading)
+                                .lineLimit(2)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(AppSpacing.md)
                         }
-                        .frame(maxWidth: .infinity, minHeight: 120)
-                        .background(AppColor.Semantic.surface)
-                        .cornerRadius(25)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 25)
-                                .stroke(Color.black.opacity(0.15), lineWidth: 0.5)
-                        )
-                        .appShadow(AppShadow.xs)
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .frame(height: 140)
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .appShadow(AppShadow.sm)
                     }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, Theme.screenPadding)
