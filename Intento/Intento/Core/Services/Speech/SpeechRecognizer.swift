@@ -33,6 +33,13 @@ final class SpeechRecognizer: SpeechRecognizing {
                 return
             }
 
+            continuation.onTermination = { @Sendable [weak self] _ in
+                guard let strongSelf = self else { return }
+                Task { @MainActor in
+                    strongSelf.stopTranscribing()
+                }
+            }
+
             do {
                 try self.start { text in
                     continuation.yield(text)
@@ -53,10 +60,6 @@ final class SpeechRecognizer: SpeechRecognizing {
                 } catch {
                     continuation.finish(throwing: error)
                 }
-            }
-
-            continuation.onTermination = { [weak self] _ in
-                Task { @MainActor in self?.stopTranscribing() }
             }
         }
     }

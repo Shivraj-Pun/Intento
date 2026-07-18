@@ -17,10 +17,12 @@ final class AppContainer {
     let haptics: HapticsServicing
     let speech: SpeechRecognizing
     let personalization: PersonalizationStoring
+    let auth: AuthServicing
 
-    init(config: AppConfig, personalization: PersonalizationStoring, snapshot: CatalogSnapshot? = nil) {
+    init(config: AppConfig, personalization: PersonalizationStoring, auth: AuthServicing, snapshot: CatalogSnapshot? = nil) {
         self.config = config
         self.personalization = personalization
+        self.auth = auth
 
         let resolvedSnapshot = snapshot ?? AppContainer.loadSnapshot()
         let catalog = MockProductCatalogService(snapshot: resolvedSnapshot)

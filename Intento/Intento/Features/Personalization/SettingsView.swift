@@ -2,77 +2,101 @@ import SwiftUI
 
 struct SettingsView: View {
     let config: AppConfig
+    let authService: AuthServicing
 
     @State private var vm: PersonalizationViewModel
+    @State private var currentUser: AppUser?
+    @State private var showPhoneLengthAlert = false
 
-    init(viewModel: PersonalizationViewModel, config: AppConfig) {
+    init(viewModel: PersonalizationViewModel, config: AppConfig, authService: AuthServicing) {
         _vm = State(initialValue: viewModel)
         self.config = config
+        self.authService = authService
     }
 
     var body: some View {
         Form {
-            Section("Preferences") {
-                Toggle(isOn: Binding(get: { vm.preference.nutritionAwareEnabled }, set: { vm.setNutritionAware($0) })) {
-                    Label("Healthier swaps by default", systemImage: "heart.text.square")
-                }
-                Toggle(isOn: Binding(get: { vm.preference.sustainabilityNudgesEnabled }, set: { vm.setSustainabilityNudges($0) })) {
-                    Label("Sustainability nudges", systemImage: "leaf")
-                }
-                Stepper(value: Binding(get: { vm.preference.defaultPeopleCount ?? 2 }, set: { vm.setDefaultPeople($0) }), in: 1...20) {
-                    Label("Default people: \(vm.preference.defaultPeopleCount ?? 2)", systemImage: "person.2")
-                }
-            }
-
-            Section("Restock reminder") {
-                Picker("Cadence", selection: Binding(get: { vm.preference.restockCadenceDays ?? 0 }, set: { vm.setRestockCadence($0 == 0 ? nil : $0) })) {
-                    Text("Off").tag(0)
-                    Text("Weekly").tag(7)
-                    Text("Fortnightly").tag(14)
-                    Text("Monthly").tag(30)
-                }
-            }
-
-            if !vm.preference.preferredProducts.isEmpty {
-                Section("Learned favourites") {
-                    ForEach(vm.preference.preferredProducts.sorted { $0.frequency > $1.frequency }) { product in
-                        HStack {
-                            Text(product.name)
-                                .foregroundStyle(AppColor.Semantic.textPrimary)
-                            Spacer()
-                            Text("×\(product.frequency)")
-                                .foregroundStyle(AppColor.Semantic.textTertiary)
-                        }
+            if let user = currentUser {
+                Section("Profile") {
+                    HStack {
+                        Image(systemName: "person.fill")
+                            .foregroundColor(AppColor.Semantic.brandStrong)
+                            .frame(width: 24)
+                        TextField("Name", text: Binding(
+                            get: { user.name ?? "" },
+                            set: { user.name = $0 }
+                        ))
+                        .textContentType(.name)
                     }
-                    Button(role: .destructive) {
-                        vm.clearPreferredProducts()
-                    } label: {
-                        Label("Clear favourites", systemImage: "trash")
+
+                    HStack {
+                        Image(systemName: "phone.fill")
+                            .foregroundColor(AppColor.Semantic.brandStrong)
+                            .frame(width: 24)
+                        TextField("Phone", text: Binding(
+                            get: { user.phone },
+                            set: { 
+                                let filtered = $0.filter { char in char.isNumber }
+                                if filtered.count > 10 {
+                                    showPhoneLengthAlert = true
+                                }
+                                user.phone = String(filtered.prefix(10)) 
+                            }
+                        ))
+                        .textContentType(.telephoneNumber)
+                        .keyboardType(.phonePad)
                     }
                 }
             }
 
-            Section("AI") {
-                labeledRow("Provider", config.llmProvider.capitalized)
-                labeledRow("Model", config.llmModel)
-                labeledRow("Mode", config.useMockServices || !config.hasLLMKey ? "On-device mock" : "Live")
-                Text("Set LLM_API_KEY in Environment.env and USE_MOCK_SERVICES=false to use \(config.llmProvider.capitalized).")
-                    .textStyle(.caption)
-                    .foregroundStyle(AppColor.Semantic.textTertiary)
+            Section("Food Preferences") {
+                ForEach(DietaryConstraint.allCases) { constraint in
+                    Toggle(isOn: Binding(
+                        get: { vm.preference.dietaryConstraints.contains(constraint) },
+                        set: { _ in vm.toggleDietaryConstraint(constraint) }
+                    )) {
+                        Text(constraint.displayName)
+                    }
+                }
             }
+            
+
+
+            Section {
+                Button(role: .destructive) {
+                    Task {
+                        try? await authService.logout()
+                    }
+                } label: {
+                    Text("Logout")
+                }
+                
+                Button(role: .destructive) {
+                    Task {
+                        try? await authService.deleteAccount()
+                    }
+                } label: {
+                    Text("Delete Account")
+                }
+            }
+        }
+        .alert("Invalid Length", isPresented: $showPhoneLengthAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Phone number cannot exceed 10 digits.")
         }
         .navigationTitle("You")
         .navigationBarTitleDisplayMode(.inline)
         .task { await vm.load() }
-    }
-
-    private func labeledRow(_ label: String, _ value: String) -> some View {
-        HStack {
-            Text(label)
-                .foregroundStyle(AppColor.Semantic.textSecondary)
-            Spacer()
-            Text(value)
-                .foregroundStyle(AppColor.Semantic.textPrimary)
+        .onReceive(authService.authStatePublisher) { state in
+            if case .loggedIn(let user) = state {
+                self.currentUser = user
+            } else {
+                self.currentUser = nil
+            }
+        }
+        .task {
+            await authService.checkSession()
         }
     }
 }

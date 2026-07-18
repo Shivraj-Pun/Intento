@@ -26,6 +26,9 @@ struct PreferredProduct: Identifiable, Codable, Hashable, Sendable {
 struct UserPreference: Identifiable, Codable, Hashable, Sendable {
     let id: UUID
 
+    var name: String
+    var phone: String
+
     var preferredProducts: [PreferredProduct]
 
     var dietaryConstraints: [DietaryConstraint]
@@ -45,6 +48,8 @@ struct UserPreference: Identifiable, Codable, Hashable, Sendable {
 
     nonisolated init(
         id: UUID = UUID(),
+        name: String = "Shivraj",
+        phone: String = "+91 9876543210",
         preferredProducts: [PreferredProduct] = [],
         dietaryConstraints: [DietaryConstraint] = [],
         defaultPeopleCount: Int? = nil,
@@ -57,6 +62,8 @@ struct UserPreference: Identifiable, Codable, Hashable, Sendable {
         updatedAt: Date = Date()
     ) {
         self.id = id
+        self.name = name
+        self.phone = phone
         self.preferredProducts = preferredProducts
         self.dietaryConstraints = dietaryConstraints
         self.defaultPeopleCount = defaultPeopleCount
