@@ -127,22 +127,6 @@ struct AppHomeView: View {
 
     private var categoriesView: some View {
         VStack(spacing: AppSpacing.lg) {
-            Button {
-                selectedTab = 0
-            } label: {
-                HStack {
-                    Text("Have a goal instead? Ask Intento")
-                    Image(systemName: "arrow.right")
-                }
-                .textStyle(.bodySMedium)
-                .foregroundColor(AppColor.Semantic.brandStrong)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
-                .background(AppColor.Semantic.brandStrong.opacity(0.1))
-                .clipShape(Capsule())
-            }
-            .padding(.top, AppSpacing.sm)
-
             // Categories
             LazyVGrid(columns: columns, spacing: AppSpacing.md) {
                 ForEach(ProductCategory.allCases) { category in

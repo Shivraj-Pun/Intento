@@ -44,6 +44,25 @@ struct CartContentView: View {
                 }
             }
 
+            if vm.cart.hasUnmatchedItems {
+                Section {
+                    ForEach(vm.cart.unmatchedItems, id: \.self) { item in
+                        HStack {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundStyle(.secondary)
+                            Text(item)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text("Not available")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                } header: {
+                    Label("Couldn't find in store", systemImage: "exclamationmark.triangle")
+                }
+            }
+
             if vm.phase == .ready && vm.cart.isEmpty {
                 emptyState
             }

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Tries the primary (Gemini) extractor first. If it fails (rate limit, network, etc.),
+/// Tries the primary extractor first. If it fails (model unavailable, generation error, etc.),
 /// falls back to the RecipeAwareMockExtractor so the app always works.
 struct FallbackIntentExtractor: LLMIntentExtracting {
     let primary: LLMIntentExtracting
@@ -12,11 +12,16 @@ struct FallbackIntentExtractor: LLMIntentExtracting {
     }
 
     func extractIntent(from text: String) async throws -> ShoppingIntent {
+        let primaryName = String(describing: type(of: primary))
+        let fallbackName = String(describing: type(of: fallback))
+        print("[Intento] 🔄 FallbackIntentExtractor — trying primary: \(primaryName)")
         do {
-            return try await primary.extractIntent(from: text)
+            let result = try await primary.extractIntent(from: text)
+            print("[Intento] ✅ Primary extractor (\(primaryName)) succeeded")
+            return result
         } catch {
-            // Log for debugging but don't crash the user experience
-            print("[FallbackIntentExtractor] Primary failed: \(error). Using fallback.")
+            print("[Intento] ❌ Primary extractor (\(primaryName)) FAILED: \(error)")
+            print("[Intento] 🔄 Falling back to: \(fallbackName)")
             return try await fallback.extractIntent(from: text)
         }
     }

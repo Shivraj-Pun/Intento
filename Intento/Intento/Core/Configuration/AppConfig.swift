@@ -34,7 +34,7 @@ struct AppConfig: AppConfigProviding, Sendable {
     private static let fallbackBaseURL = URL(string: "https://generativelanguage.googleapis.com/v1beta")!
 
     init(environment: EnvironmentConfigProviding) {
-        self.llmProvider = environment.value(forKey: Key.llmProvider) ?? "gemini"
+        self.llmProvider = environment.value(forKey: Key.llmProvider) ?? "apple"
         self.llmAPIKey = environment.value(forKey: Key.llmAPIKey) ?? ""
 
         if let raw = environment.value(forKey: Key.llmBaseURL), let url = URL(string: raw) {
@@ -45,7 +45,7 @@ struct AppConfig: AppConfigProviding, Sendable {
 
         self.llmModel = environment.value(forKey: Key.llmModel) ?? "gemini-2.0-flash"
 
-        let mockRaw = (environment.value(forKey: Key.useMockServices) ?? "true").lowercased()
+        let mockRaw = (environment.value(forKey: Key.useMockServices) ?? "false").lowercased()
         self.useMockServices = !(mockRaw == "false" || mockRaw == "0" || mockRaw == "no")
 
         self.currencyCode = environment.value(forKey: Key.currencyCode) ?? "INR"
@@ -53,11 +53,11 @@ struct AppConfig: AppConfigProviding, Sendable {
     }
 
     init(
-        llmProvider: String = "gemini",
+        llmProvider: String = "apple",
         llmAPIKey: String = "",
         llmBaseURL: URL = AppConfig.fallbackBaseURL,
         llmModel: String = "gemini-2.0-flash",
-        useMockServices: Bool = true,
+        useMockServices: Bool = false,
         currencyCode: String = "INR",
         localeIdentifier: String = "en_IN"
     ) {

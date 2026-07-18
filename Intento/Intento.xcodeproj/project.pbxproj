@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 100;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -30,7 +30,6 @@
 /* Begin PBXFrameworksBuildPhase section */
 		D7956A21300B755A005A0E45 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				C64CAD66300BEB9800D074F4 /* PostgREST in Frameworks */,
 				C64CAD64300BEB9800D074F4 /* Functions in Frameworks */,
@@ -39,7 +38,6 @@
 				C64CAD6A300BEB9800D074F4 /* Storage in Frameworks */,
 				C64CAD68300BEB9800D074F4 /* Realtime in Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -72,8 +70,6 @@
 				D7956A22300B755A005A0E45 /* Resources */,
 			);
 			buildRules = (
-			);
-			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
 				D7956A26300B755A005A0E45 /* Intento */,
@@ -118,7 +114,7 @@
 			packageReferences = (
 				C64CAD60300BEB9800D074F4 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 100;
 			productRefGroup = D7956A25300B755A005A0E45 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -131,25 +127,21 @@
 /* Begin PBXResourcesBuildPhase section */
 		D7956A22300B755A005A0E45 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		D7956A20300B755A005A0E45 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		D7956A2D300B755B005A0E45 /* Debug */ = {
+		D7956A2D300B755B005A0E45 /* Debug configuration for PBXProject "Intento" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -212,7 +204,7 @@
 			};
 			name = Debug;
 		};
-		D7956A2E300B755B005A0E45 /* Release */ = {
+		D7956A2E300B755B005A0E45 /* Release configuration for PBXProject "Intento" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -268,7 +260,7 @@
 			};
 			name = Release;
 		};
-		D7956A30300B755B005A0E45 /* Debug */ = {
+		D7956A30300B755B005A0E45 /* Debug configuration for PBXNativeTarget "Intento" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -284,6 +276,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -301,7 +294,7 @@
 			};
 			name = Debug;
 		};
-		D7956A31300B755B005A0E45 /* Release */ = {
+		D7956A31300B755B005A0E45 /* Release configuration for PBXNativeTarget "Intento" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -317,6 +310,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -340,19 +334,17 @@
 		D7956A1F300B755A005A0E45 /* Build configuration list for PBXProject "Intento" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D7956A2D300B755B005A0E45 /* Debug */,
-				D7956A2E300B755B005A0E45 /* Release */,
+				D7956A2D300B755B005A0E45 /* Debug configuration for PBXProject "Intento" */,
+				D7956A2E300B755B005A0E45 /* Release configuration for PBXProject "Intento" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		D7956A2F300B755B005A0E45 /* Build configuration list for PBXNativeTarget "Intento" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D7956A30300B755B005A0E45 /* Debug */,
-				D7956A31300B755B005A0E45 /* Release */,
+				D7956A30300B755B005A0E45 /* Debug configuration for PBXNativeTarget "Intento" */,
+				D7956A31300B755B005A0E45 /* Release configuration for PBXNativeTarget "Intento" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
