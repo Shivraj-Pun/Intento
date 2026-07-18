@@ -143,6 +143,10 @@ struct AppHomeView: View {
                         .frame(maxWidth: .infinity, minHeight: 120)
                         .background(AppColor.Semantic.surface)
                         .cornerRadius(25)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 25)
+                                .stroke(Color.black.opacity(0.15), lineWidth: 0.5)
+                        )
                         .appShadow(AppShadow.xs)
                     }
                 }

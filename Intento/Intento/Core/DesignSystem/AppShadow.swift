@@ -15,8 +15,8 @@ struct AppShadowStyle: Sendable {
 }
 
 enum AppShadow {
-    nonisolated static let xs = AppShadowStyle(color: .black.opacity(0.05), radius: 1, y: 1)
-    nonisolated static let sm = AppShadowStyle(color: .black.opacity(0.10), radius: 1.5, y: 1)
+    nonisolated static let xs = AppShadowStyle(color: .black.opacity(0.08), radius: 4, y: 2)
+    nonisolated static let sm = AppShadowStyle(color: .black.opacity(0.12), radius: 6, y: 3)
     nonisolated static let md = AppShadowStyle(color: .black.opacity(0.10), radius: 3, y: 4)
     nonisolated static let lg = AppShadowStyle(color: .black.opacity(0.10), radius: 7.5, y: 10)
     nonisolated static let xl = AppShadowStyle(color: .black.opacity(0.10), radius: 12.5, y: 20)
