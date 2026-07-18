@@ -25,4 +25,7 @@ protocol CartPersisting: Sendable {
 
     /// Deletes all items and the active cart row (used for cart clearing without order).
     func clearActiveCart(userID: UUID) async throws
+
+    /// Fetches all previously checked-out carts for the user.
+    func pastOrders(userID: UUID) async throws -> [Cart]
 }

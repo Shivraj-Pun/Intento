@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		76CE84B8106A929A3D911AFB /* OrderHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE894498F754421C428DF248 /* OrderHistoryView.swift */; };
 		C64CAE7D300BF6E100D074F4 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C64CAE7C300BF6E100D074F4 /* Auth */; };
 		C64CAE7F300BF6E100D074F4 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = C64CAE7E300BF6E100D074F4 /* Functions */; };
 		C64CAE81300BF6E100D074F4 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C64CAE80300BF6E100D074F4 /* PostgREST */; };
@@ -16,12 +17,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AE894498F754421C428DF248 /* OrderHistoryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OrderHistoryView.swift; path = Intento/Features/Personalization/OrderHistoryView.swift; sourceTree = "<group>"; };
 		D7956A24300B755A005A0E45 /* Intento.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Intento.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D7956A26300B755A005A0E45 /* Intento */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Intento;
 			sourceTree = "<group>";
 		};
@@ -42,11 +46,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		373E587502169325B60FCC70 /* Personalization */ = {
+			isa = PBXGroup;
+			children = (
+				AE894498F754421C428DF248 /* OrderHistoryView.swift */,
+			);
+			name = Personalization;
+			sourceTree = "<group>";
+		};
+		7C6CB57FE0C2D69E4D817BA4 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				373E587502169325B60FCC70 /* Personalization */,
+			);
+			name = Features;
+			sourceTree = "<group>";
+		};
 		D7956A1B300B755A005A0E45 = {
 			isa = PBXGroup;
 			children = (
 				D7956A26300B755A005A0E45 /* Intento */,
 				D7956A25300B755A005A0E45 /* Products */,
+				7C6CB57FE0C2D69E4D817BA4 /* Features */,
 			);
 			sourceTree = "<group>";
 		};
@@ -70,6 +91,8 @@
 				D7956A22300B755A005A0E45 /* Resources */,
 			);
 			buildRules = (
+			);
+			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
 				D7956A26300B755A005A0E45 /* Intento */,
@@ -136,12 +159,13 @@
 		D7956A20300B755A005A0E45 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
+				76CE84B8106A929A3D911AFB /* OrderHistoryView.swift in Sources */,
 			);
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		D7956A2D300B755B005A0E45 /* Debug configuration for PBXProject "Intento" */ = {
+		D7956A2D300B755B005A0E45 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -204,7 +228,7 @@
 			};
 			name = Debug;
 		};
-		D7956A2E300B755B005A0E45 /* Release configuration for PBXProject "Intento" */ = {
+		D7956A2E300B755B005A0E45 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -260,7 +284,7 @@
 			};
 			name = Release;
 		};
-		D7956A30300B755B005A0E45 /* Debug configuration for PBXNativeTarget "Intento" */ = {
+		D7956A30300B755B005A0E45 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -294,7 +318,7 @@
 			};
 			name = Debug;
 		};
-		D7956A31300B755B005A0E45 /* Release configuration for PBXNativeTarget "Intento" */ = {
+		D7956A31300B755B005A0E45 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -334,16 +358,16 @@
 		D7956A1F300B755A005A0E45 /* Build configuration list for PBXProject "Intento" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D7956A2D300B755B005A0E45 /* Debug configuration for PBXProject "Intento" */,
-				D7956A2E300B755B005A0E45 /* Release configuration for PBXProject "Intento" */,
+				D7956A2D300B755B005A0E45 /* Debug */,
+				D7956A2E300B755B005A0E45 /* Release */,
 			);
 			defaultConfigurationName = Release;
 		};
 		D7956A2F300B755B005A0E45 /* Build configuration list for PBXNativeTarget "Intento" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D7956A30300B755B005A0E45 /* Debug configuration for PBXNativeTarget "Intento" */,
-				D7956A31300B755B005A0E45 /* Release configuration for PBXNativeTarget "Intento" */,
+				D7956A30300B755B005A0E45 /* Debug */,
+				D7956A31300B755B005A0E45 /* Release */,
 			);
 			defaultConfigurationName = Release;
 		};
@@ -357,8 +381,6 @@
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.5.1;
 			};
-			traits = (
-			);
 		};
 /* End XCRemoteSwiftPackageReference section */
 

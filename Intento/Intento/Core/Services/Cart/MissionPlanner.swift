@@ -44,13 +44,16 @@ struct MissionPlanner {
             score += desiredTags.intersection(productTags).count * 3
             if desiredCategories.contains(product.category) { score += 2 }
 
-            let haystack = (product.name + " " + (product.brand ?? "")).lowercased()
+            let haystack = (product.name + " " + (product.brand ?? "") + " " + product.tags.joined(separator: " ")).lowercased()
             if goalTokens.contains(where: { $0.count > 2 && haystack.contains($0) }) { score += 2 }
 
-            if let preferred = preference?.preferredProduct(in: product.category), preferred.sku == product.sku {
-                score += 4
+            // Only apply preference and nutrition boosts if the product already matches the intent somewhat
+            if score > 0 {
+                if let preferred = preference?.preferredProduct(in: product.category), preferred.sku == product.sku {
+                    score += 4
+                }
+                if let scoreValue = product.nutritionScore { score += scoreValue == 4 ? 1 : 0 }
             }
-            if let scoreValue = product.nutritionScore { score += scoreValue == 4 ? 1 : 0 }
 
             if score > 0 { scored.append(PlannedItem(product: product, score: score)) }
         }
@@ -121,7 +124,9 @@ struct MissionPlanner {
                     score += 2
                 }
 
-                if score > 0 {
+                // Require a meaningful match (at least 5 points) to prevent single-token overlaps
+                // like "powder" matching "coriander powder" when asking for "cocoa powder".
+                if score >= 5 {
                     if bestMatch == nil || score > bestMatch!.score ||
                        (score == bestMatch!.score && product.price.paise < bestMatch!.product.price.paise) {
                         bestMatch = (product, score)

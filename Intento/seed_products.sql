@@ -1193,7 +1193,7 @@
     is_reusable_alternative, image_name, stock_status, quantity_available, is_active
 ) VALUES (
     'PANTRY-ATTA-5KG', 'Whole Wheat Atta', 'Aashirvaad', 'pantry', None, '', None,
-    '[]'::jsonb, '["atta", "flour", "staple"]'::jsonb, '[]'::jsonb, None, None,
+    '[]'::jsonb, '["atta", "flour", "staple", "chapati", "dough", "roti"]'::jsonb, '[]'::jsonb, None, None,
     NULL, false, NULL,
     false, NULL, 'in_stock', 0, true
 ) ON CONFLICT (sku) DO UPDATE SET
@@ -5695,4 +5695,20 @@
     image_name = EXCLUDED.image_name,
     stock_status = EXCLUDED.stock_status,
     quantity_available = EXCLUDED.quantity_available,
-    is_active = EXCLUDED.is_active;\nCOMMIT;
+    is_active = EXCLUDED.is_active;\nCOMMIT;INSERT INTO products (
+    sku, name, brand, category, price_paise, 
+    pack_value, pack_unit, 
+    dietary_tags, tags, seasonal_tags,
+    nutrition_score, stock_status, quantity_available, is_active
+) VALUES 
+('PANTRY-COCOA-250G', 'Cocoa Powder', 'Hersheys', 'pantry', 25000, 250, 'g', '["vegetarian", "vegan"]'::jsonb, '["baking", "cocoa", "chocolate", "powder"]'::jsonb, '[]'::jsonb, 2, 'in_stock', 50, true),
+('PANTRY-BAKING-SODA-100G', 'Baking Soda', 'Weikfield', 'pantry', 4500, 100, 'g', '["vegetarian", "vegan"]'::jsonb, '["baking", "soda", "powder"]'::jsonb, '[]'::jsonb, 2, 'in_stock', 100, true),
+('PANTRY-BAKING-POWDER-100G', 'Baking Powder', 'Weikfield', 'pantry', 5500, 100, 'g', '["vegetarian", "vegan"]'::jsonb, '["baking", "powder"]'::jsonb, '[]'::jsonb, 2, 'in_stock', 100, true),
+('PANTRY-VANILLA-50ML', 'Vanilla Extract', 'Urban Platter', 'pantry', 15000, 50, 'ml', '["vegetarian", "vegan"]'::jsonb, '["baking", "vanilla", "essence"]'::jsonb, '[]'::jsonb, 2, 'in_stock', 30, true),
+('BAKERY-CHOC-CHIPS-200G', 'Dark Chocolate Chips', 'Morde', 'bakery', 18000, 200, 'g', '["vegetarian"]'::jsonb, '["baking", "chocolate", "chips"]'::jsonb, '[]'::jsonb, 1, 'in_stock', 40, true),
+('BAKERY-CAKE-MIX-400G', 'Chocolate Cake Mix', 'Betty Crocker', 'bakery', 30000, 400, 'g', '["vegetarian"]'::jsonb, '["baking", "cake", "mix", "chocolate"]'::jsonb, '[]'::jsonb, 1, 'in_stock', 20, true),
+('PANTRY-ICING-SUGAR-500G', 'Icing Sugar (Powdered)', 'Trust', 'pantry', 8000, 500, 'g', '["vegetarian", "vegan"]'::jsonb, '["baking", "sugar", "powder", "icing"]'::jsonb, '[]'::jsonb, 1, 'in_stock', 60, true)
+ON CONFLICT (sku) DO UPDATE SET 
+    name = EXCLUDED.name, 
+    tags = EXCLUDED.tags,
+    category = EXCLUDED.category;

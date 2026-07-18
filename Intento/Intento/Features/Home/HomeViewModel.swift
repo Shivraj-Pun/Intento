@@ -44,16 +44,25 @@ final class HomeViewModel {
     }
 
     private func computeQuickMissions() {
+        var seen = Set<String>()
+        var combined: [String] = []
+
         // Show user's most frequently used missions first
         let frequentMissions = recentMissions
             .sorted { $0.timesUsed > $1.timesUsed }
             .map { $0.rawIntentText.isEmpty ? $0.title : $0.rawIntentText }
-            .prefix(6)
 
-        var combined = Array(frequentMissions)
+        for mission in frequentMissions {
+            if combined.count < 6, !seen.contains(mission) {
+                combined.append(mission)
+                seen.insert(mission)
+            }
+        }
+
         for def in Self.defaultQuickMissions {
-            if combined.count < 6 && !combined.contains(def) {
+            if combined.count < 6, !seen.contains(def) {
                 combined.append(def)
+                seen.insert(def)
             }
         }
         quickMissions = combined

@@ -7,6 +7,7 @@ enum MissionCatalogTags {
         .weeklyRestock: ["staple"],
         .breakfast: ["breakfast"],
         .dinnerParty: ["curry", "dinner", "party"],
+        .party: ["party", "snack"],
         .birthday: ["party", "birthday"],
         .festival: ["party", "celebration"],
         .guestsOver: ["party", "dinner"],
@@ -20,7 +21,8 @@ enum MissionCatalogTags {
         .illness: [.firstAid],
         .cleaning: [.cleaning],
         .breakfast: [.dairy, .bakery],
-        .movieNight: [.snacks, .beverages]
+        .movieNight: [.snacks, .beverages],
+        .party: [.snacks, .beverages, .partySupplies, .bakery]
     ]
 
     static let goalKeywordTags: [String: [String]] = [

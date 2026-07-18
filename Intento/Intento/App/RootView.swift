@@ -41,7 +41,8 @@ struct RootView: View {
                         SettingsView(
                             viewModel: container.makePersonalizationViewModel(),
                             config: container.config,
-                            authService: container.auth
+                            authService: container.auth,
+                            cartService: container.cartService
                         )
                     }
                 }

@@ -3,21 +3,29 @@ import SwiftUI
 struct SettingsView: View {
     let config: AppConfig
     let authService: AuthServicing
+    let cartService: CartPersisting
 
     @State private var vm: PersonalizationViewModel
     @State private var currentUser: AppUser?
     @State private var showPhoneLengthAlert = false
 
-    init(viewModel: PersonalizationViewModel, config: AppConfig, authService: AuthServicing) {
+    init(viewModel: PersonalizationViewModel, config: AppConfig, authService: AuthServicing, cartService: CartPersisting) {
         _vm = State(initialValue: viewModel)
         self.config = config
         self.authService = authService
+        self.cartService = cartService
     }
 
     var body: some View {
         Form {
             if let user = currentUser {
                 Section("Profile") {
+                    NavigationLink {
+                        OrderHistoryView(cartService: cartService, user: user)
+                    } label: {
+                        Label("Order History", systemImage: "clock.arrow.circlepath")
+                    }
+                    
                     HStack {
                         Image(systemName: "person.fill")
                             .foregroundColor(AppColor.Semantic.brandStrong)

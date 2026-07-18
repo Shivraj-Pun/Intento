@@ -5,6 +5,7 @@ enum Occasion: String, Codable, CaseIterable, Hashable, Sendable, Identifiable {
     case weeklyRestock = "weekly_restock"
     case breakfast
     case dinnerParty = "dinner_party"
+    case party
     case movieNight = "movie_night"
     case birthday
     case festival
@@ -22,6 +23,7 @@ enum Occasion: String, Codable, CaseIterable, Hashable, Sendable, Identifiable {
         case .weeklyRestock: "Weekly Restock"
         case .breakfast: "Breakfast"
         case .dinnerParty: "Dinner Party"
+        case .party: "Party"
         case .movieNight: "Movie Night"
         case .birthday: "Birthday"
         case .festival: "Festival"

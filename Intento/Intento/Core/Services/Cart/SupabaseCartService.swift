@@ -87,8 +87,8 @@ actor SupabaseCartService: CartPersisting {
 
     @discardableResult
     func saveCart(_ cart: Cart, userID: UUID, missionID: UUID?) async throws -> UUID {
-        // Delete existing active cart for this user (replace strategy)
-        try await deleteActiveCart(userID: userID)
+        // Abandon existing active cart for this user instead of deleting it (preserve history)
+        try await abandonActiveCart(userID: userID)
         // The active cart id is changing — drop any memoized resolution.
         invalidateActiveCartCache(for: userID)
 
@@ -228,7 +228,7 @@ actor SupabaseCartService: CartPersisting {
 
         try await client.database
             .from("carts")
-            .update(StatusUpdate(status: "checked_out", updated_at: ISO8601DateFormatter().string(from: Date())))
+            .update(StatusUpdate(status: "completed", updated_at: ISO8601DateFormatter().string(from: Date())))
             .eq("id", value: cartRow.id.uuidString)
             .execute()
 
@@ -239,7 +239,7 @@ actor SupabaseCartService: CartPersisting {
     // MARK: - Clear Active Cart
 
     func clearActiveCart(userID: UUID) async throws {
-        try await deleteActiveCart(userID: userID)
+        try await abandonActiveCart(userID: userID)
     }
 
     // MARK: - Private Helpers
@@ -312,34 +312,22 @@ actor SupabaseCartService: CartPersisting {
         activeCartResolution[userID] = nil
     }
 
-    /// Deletes the active cart and its items for a user.
-    private func deleteActiveCart(userID: UUID) async throws {
+    /// Abandons the active cart for a user so its data is preserved in history.
+    private func abandonActiveCart(userID: UUID) async throws {
         // Any memoized cart id is about to become invalid.
         invalidateActiveCartCache(for: userID)
 
-        let cartRows: [SupabaseCartRow] = try await client.database
+        struct StatusUpdate: Encodable {
+            let status: String
+            let updated_at: String
+        }
+
+        try await client.database
             .from("carts")
-            .select()
+            .update(StatusUpdate(status: "abandoned", updated_at: ISO8601DateFormatter().string(from: Date())))
             .eq("user_id", value: userID.uuidString)
             .eq("status", value: "active")
             .execute()
-            .value
-
-        for cartRow in cartRows {
-            // Delete items first (FK constraint)
-            try await client.database
-                .from("cart_items")
-                .delete()
-                .eq("cart_id", value: cartRow.id.uuidString)
-                .execute()
-
-            // Delete cart row
-            try await client.database
-                .from("carts")
-                .delete()
-                .eq("id", value: cartRow.id.uuidString)
-                .execute()
-        }
     }
 
     /// Updates the `updated_at` timestamp on a cart row.
@@ -352,5 +340,73 @@ actor SupabaseCartService: CartPersisting {
             .update(TouchUpdate(updated_at: ISO8601DateFormatter().string(from: Date())))
             .eq("id", value: cartID.uuidString)
             .execute()
+    }
+
+    // MARK: - Past Orders
+
+    func pastOrders(userID: UUID) async throws -> [Cart] {
+        let cartRows: [SupabaseCartRow] = try await client.database
+            .from("carts")
+            .select()
+            .eq("user_id", value: userID.uuidString)
+            .eq("status", value: "completed")
+            .order("updated_at", ascending: false)
+            .limit(50)
+            .execute()
+            .value
+
+        guard !cartRows.isEmpty else { return [] }
+
+        let cartIDs = cartRows.map { $0.id.uuidString }
+
+        let itemRows: [SupabaseCartItemRow] = try await client.database
+            .from("cart_items")
+            .select()
+            .in("cart_id", values: cartIDs)
+            .execute()
+            .value
+
+        let skus = itemRows.map(\.product_sku)
+        let products = try await catalog.products(forSKUs: skus)
+        let productMap = Dictionary(uniqueKeysWithValues: products.map { ($0.sku, $0) })
+
+        let itemsByCart = Dictionary(grouping: itemRows, by: { $0.cart_id })
+
+        var pastCarts: [Cart] = []
+        let dateFormatter = ISO8601DateFormatter()
+
+        for cartRow in cartRows {
+            let rowItems = itemsByCart[cartRow.id] ?? []
+            let cartItems: [CartItem] = rowItems.compactMap { row in
+                guard let product = productMap[row.product_sku] else { return nil }
+                let source = CartItemSource(rawValue: row.source) ?? .generated
+                let substitution: SubstitutionRecord? = {
+                    guard let jsonStr = row.substitution,
+                          let data = jsonStr.data(using: .utf8) else { return nil }
+                    return try? self.decoder.decode(SubstitutionRecord.self, from: data)
+                }()
+                return CartItem(
+                    id: row.id,
+                    product: product,
+                    quantity: row.quantity,
+                    source: source,
+                    substitution: substitution
+                )
+            }
+
+            let budget: Money? = cartRow.budget_paise.map { Money(paise: $0) }
+            let createdAt = dateFormatter.date(from: cartRow.updated_at) ?? Date() // Use updated_at since that's when it was checked out
+
+            pastCarts.append(Cart(
+                id: cartRow.id,
+                items: cartItems,
+                budget: budget,
+                estimatedETAMinutes: cartRow.estimated_eta_minutes,
+                createdAt: createdAt,
+                nearBudgetThreshold: cartRow.near_budget_threshold
+            ))
+        }
+
+        return pastCarts
     }
 }

@@ -60,11 +60,11 @@ actor SupabaseProductCatalogService: ProductCatalogServicing {
     func search(_ query: String) async throws -> [Product] {
         guard !query.isEmpty else { return [] }
         
-        // Searches name and tags ignoring case
+        // PostgREST uses * as wildcard for ilike
         let response: [SupabaseProductDTO] = try await client.database
             .from("products")
             .select()
-            .or("name.ilike.%\\(query)%,tags.cs.{\\(query)}")
+            .ilike("name", pattern: "*\(query)*")
             .eq("is_active", value: true)
             .execute()
             .value
