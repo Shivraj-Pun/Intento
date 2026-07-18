@@ -52,10 +52,13 @@ struct QuantityStepper: View {
 
     var body: some View {
         HStack(spacing: AppSpacing.sm) {
-            Button(action: onDecrement) {
+            Button {
+                onDecrement()
+            } label: {
                 Image(systemName: quantity <= 1 ? "trash" : "minus")
                     .font(.footnote.weight(.semibold))
                     .frame(width: 28, height: 28)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .foregroundStyle(AppColor.Semantic.brandStrong)
@@ -65,10 +68,13 @@ struct QuantityStepper: View {
                 .frame(minWidth: 20)
                 .contentTransition(.numericText())
 
-            Button(action: onIncrement) {
+            Button {
+                onIncrement()
+            } label: {
                 Image(systemName: "plus")
                     .font(.footnote.weight(.semibold))
                     .frame(width: 28, height: 28)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .foregroundStyle(AppColor.Semantic.brandStrong)

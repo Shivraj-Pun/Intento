@@ -94,8 +94,5 @@ struct SubstitutionBadge: View {
                 .textStyle(.caption)
         }
         .foregroundStyle(AppColor.Warning.s700)
-        .padding(.horizontal, AppSpacing.sm)
-        .padding(.vertical, 2)
-        .background(Capsule().fill(AppColor.Warning.s100))
     }
 }
