@@ -32,14 +32,27 @@ final class SpeechRecognizer: SpeechRecognizing {
                 continuation.finish()
                 return
             }
+
             do {
-                try start { text in
+                try self.start { text in
                     continuation.yield(text)
                 } onError: { error in
                     continuation.finish(throwing: error)
                 }
             } catch {
-                continuation.finish(throwing: error)
+                // Retry once — the simulator audio device can be temporarily
+                // unavailable while it reconfigures.
+                self.audioEngine.stop()
+                self.audioEngine.inputNode.removeTap(onBus: 0)
+                do {
+                    try self.start { text in
+                        continuation.yield(text)
+                    } onError: { error in
+                        continuation.finish(throwing: error)
+                    }
+                } catch {
+                    continuation.finish(throwing: error)
+                }
             }
 
             continuation.onTermination = { [weak self] _ in
@@ -63,7 +76,7 @@ final class SpeechRecognizer: SpeechRecognizing {
         task = nil
 
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.record, mode: .measurement, options: .duckOthers)
+        try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
         try session.setActive(true, options: .notifyOthersOnDeactivation)
 
         let request = SFSpeechAudioBufferRecognitionRequest()
@@ -71,7 +84,14 @@ final class SpeechRecognizer: SpeechRecognizing {
         self.request = request
 
         let inputNode = audioEngine.inputNode
-        let format = inputNode.outputFormat(forBus: 0)
+
+        // The simulator can return a format with 0 channels / 0 sample rate when its
+        // virtual audio device is reconfiguring. Use a known-good format as fallback.
+        var format = inputNode.outputFormat(forBus: 0)
+        if format.sampleRate == 0 || format.channelCount == 0 {
+            format = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1)!
+        }
+
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in
             request.append(buffer)
         }

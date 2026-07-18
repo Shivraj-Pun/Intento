@@ -23,9 +23,9 @@ struct CartAssembler: CartAssembling {
 
     func generateCart(for intent: ShoppingIntent) async throws -> Cart {
         let preference = await preferenceProvider()
-        let products = try await planner.plan(for: intent, preference: preference)
+        let planResult = try await planner.plan(for: intent, preference: preference)
 
-        let items = products.map { product in
+        let items = planResult.products.map { product in
             CartItem(
                 product: product,
                 quantity: scaler.recommendedQuantity(for: product, intent: intent),
@@ -33,9 +33,14 @@ struct CartAssembler: CartAssembling {
             )
         }
 
-        var cart = Cart(items: items, budget: intent.budget)
+        var cart = Cart(items: items, budget: intent.budget, unmatchedItems: planResult.unmatchedItems)
         cart = try await substitution.resolveSubstitutions(for: cart)
         cart.estimatedETAMinutes = try await estimatedETA(for: cart)
+
+        if !cart.unmatchedItems.isEmpty {
+            print("[Intento] ⚠️ Unmatched items not found in catalog: \(cart.unmatchedItems)")
+        }
+
         return cart
     }
 
@@ -44,10 +49,14 @@ struct CartAssembler: CartAssembling {
             let task = Task {
                 do {
                     let preference = await preferenceProvider()
-                    let products = try await planner.plan(for: intent, preference: preference)
-                    var cart = Cart(items: [], budget: intent.budget)
+                    let planResult = try await planner.plan(for: intent, preference: preference)
+                    var cart = Cart(items: [], budget: intent.budget, unmatchedItems: planResult.unmatchedItems)
 
-                    for product in products {
+                    if !planResult.unmatchedItems.isEmpty {
+                        print("[Intento] ⚠️ Unmatched items not found in catalog: \(planResult.unmatchedItems)")
+                    }
+
+                    for product in planResult.products {
                         try Task.checkCancellation()
                         let quantity = scaler.recommendedQuantity(for: product, intent: intent)
                         let status = try await inventory.status(forSKU: product.sku)

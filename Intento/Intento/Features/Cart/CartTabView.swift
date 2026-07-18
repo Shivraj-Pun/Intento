@@ -39,11 +39,11 @@ struct CartTabView: View {
                 VStack(spacing: AppSpacing.md) {
                     HStack {
                         Text("Total")
-                            .textStyle(.headingM)
+                            .textStyle(.headingXS)
                             .foregroundColor(AppColor.Semantic.textPrimary)
                         Spacer()
                         Text(globalCart.subtotal.formatted(currencyCode: "INR", localeIdentifier: "en_IN"))
-                            .textStyle(.headingL)
+                            .textStyle(.headingXS)
                             .foregroundColor(AppColor.Semantic.brandStrong)
                     }
                     

@@ -60,15 +60,40 @@ final class AppContainer {
     }
 
     static func makeIntentExtractor(config: AppConfig) -> LLMIntentExtracting {
-        guard !config.useMockServices, config.hasLLMKey, config.llmProvider.lowercased() == "gemini" else {
+        print("[Intento] 🔧 Configuring intent extractor — provider: \"\(config.llmProvider)\", useMockServices: \(config.useMockServices)")
+
+        guard !config.useMockServices else {
+            print("[Intento] ⚠️ useMockServices=true → Using RecipeAwareMockExtractor")
             return RecipeAwareMockExtractor()
         }
-        let gemini = GeminiIntentExtractor(
-            apiKey: config.llmAPIKey,
-            baseURL: config.llmBaseURL,
-            model: config.llmModel
-        )
-        return FallbackIntentExtractor(primary: gemini)
+
+        // Apple Foundation Models — on-device, no API key needed, privacy-first
+        if config.llmProvider.lowercased() == "apple" {
+            print("[Intento] 🍎 Provider is 'apple' — checking Foundation Models availability...")
+            if AppleFoundationModelAvailability.isAvailable {
+                if #available(iOS 26.0, macOS 26.0, *) {
+                    print("[Intento] ✅ Apple Foundation Models AVAILABLE — using on-device extraction")
+                    let apple = AppleFoundationModelIntentExtractor()
+                    return FallbackIntentExtractor(primary: apple)
+                }
+            }
+            print("[Intento] ❌ Apple Foundation Models NOT available on this device — falling back to mock")
+            return FallbackIntentExtractor(primary: RecipeAwareMockExtractor())
+        }
+
+        // Gemini (cloud) — kept intact but no longer the default path
+        if config.llmProvider.lowercased() == "gemini", config.hasLLMKey {
+            print("[Intento] 🌐 Provider is 'gemini' with API key — using Gemini cloud extraction")
+            let gemini = GeminiIntentExtractor(
+                apiKey: config.llmAPIKey,
+                baseURL: config.llmBaseURL,
+                model: config.llmModel
+            )
+            return FallbackIntentExtractor(primary: gemini)
+        }
+
+        print("[Intento] ⚠️ No valid provider configured — falling back to RecipeAwareMockExtractor")
+        return RecipeAwareMockExtractor()
     }
 
     static func loadSnapshot() -> CatalogSnapshot {

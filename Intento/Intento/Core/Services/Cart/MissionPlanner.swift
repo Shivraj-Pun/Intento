@@ -5,6 +5,12 @@ struct PlannedItem: Sendable {
     let score: Int
 }
 
+/// Result of mission planning — includes matched products and any items that couldn't be found in the catalog.
+struct PlanResult: Sendable {
+    let products: [Product]
+    let unmatchedItems: [String]
+}
+
 struct MissionPlanner {
     let catalog: ProductCatalogServicing
 
@@ -15,7 +21,7 @@ struct MissionPlanner {
         self.catalog = catalog
     }
 
-    func plan(for intent: ShoppingIntent, preference: UserPreference?) async throws -> [Product] {
+    func plan(for intent: ShoppingIntent, preference: UserPreference?) async throws -> PlanResult {
         let all = try await catalog.allProducts()
 
         // If requiredItems are provided (from LLM or mock), prioritize direct matching
@@ -55,14 +61,16 @@ struct MissionPlanner {
         }
 
         let selected = isBroadMission ? limitPerCategory(scored) : scored
-        return Array(selected.prefix(maxItems).map(\.product))
+        return PlanResult(products: Array(selected.prefix(maxItems).map(\.product)), unmatchedItems: [])
     }
 
     /// Plans the cart by matching requiredItems against the catalog using fuzzy name search.
     /// Each required item gets the best-matching product from the catalog.
-    private func planWithRequiredItems(intent: ShoppingIntent, allProducts: [Product], preference: UserPreference?) -> [Product] {
+    /// Items that can't be matched are collected in `unmatchedItems`.
+    private func planWithRequiredItems(intent: ShoppingIntent, allProducts: [Product], preference: UserPreference?) -> PlanResult {
         var selected: [Product] = []
         var usedSKUs: Set<String> = []
+        var unmatched: [String] = []
 
         for requiredItem in intent.requiredItems {
             let normalized = requiredItem.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
@@ -116,10 +124,12 @@ struct MissionPlanner {
             if let match = bestMatch {
                 selected.append(match.product)
                 usedSKUs.insert(match.product.sku)
+            } else {
+                unmatched.append(requiredItem)
             }
         }
 
-        return Array(selected.prefix(maxItems))
+        return PlanResult(products: Array(selected.prefix(maxItems)), unmatchedItems: unmatched)
     }
 
     private func limitPerCategory(_ items: [PlannedItem]) -> [PlannedItem] {
